@@ -1,0 +1,63 @@
+<apex:page controller="ImportInstallerDataFromCSVController">
+    <apex:form >
+        <apex:pagemessages />
+        <apex:pageBlock title="Import Installers" >
+            <apex:pageBlockSection columns="4"> 
+                  <apex:inputFile value="{!csvFileBody}" accept=".csv"  filename="{!csvAsString}"/>
+                  <apex:commandButton value="Import Installer Data" action="{!importCSVFile}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock >
+           <apex:pageblocktable value="{!listInstallerData}" var="installer">
+           
+            
+       
+            
+              
+           <apex:column headerValue="FirstName">
+           <apex:outputLink target="_blank" value="/{!installer.ContactID}"><apex:outputText value="{!installer.FirstName}" /></apex:outputLink>
+            </apex:column>
+            <apex:column headerValue="LastName">
+           <apex:outputLink target="_blank" value="/{!installer.ContactID}"><apex:outputText value="{!installer.LastName}" /></apex:outputLink>
+            </apex:column>
+            <apex:column headerValue="EmailAddress" value="{!installer.EmailAddress}" />
+             <apex:column headerValue="Parent_Installation_Company">
+           <apex:outputLink target="_blank" value="/{!installer.AffiliateID}"><apex:outputText value="{!installer.Parent_Installation_Company}" /></apex:outputLink>
+            </apex:column>
+             <apex:column headerValue="Child_Subcontracted_Company">
+           <apex:outputLink target="_blank" value="/{!installer.AffiliateID}"><apex:outputText value="{!installer.Child_Subcontracted_Company}" /></apex:outputLink>
+            </apex:column>
+              
+              
+              <apex:column headerValue="Pass_Result" value="{!installer.Pass_Result}" />  
+              <apex:column headerValue="User_Score" value="{!installer.User_Score}" /> 
+                <apex:column headerValue="Exam_Date"  value="{!installer.Exam_Date}" />
+              <apex:column headerValue="Exam_ID" value="{!installer.Exam_ID}" />
+              <apex:column headerValue="Exam_Name" value="{!installer.Exam_Name}" />
+              
+              <apex:column headerValue="Phone" value="{!installer.Phone}" />
+              <apex:column headerValue="City" value="{!installer.City}" />
+              <apex:column headerValue="State" value="{!installer.State}" />
+              <apex:column headerValue="Zip" value="{!installer.Zip}" />
+              <apex:column headerValue="User_Id" value="{!installer.User_Id}" />
+              <apex:column headerValue="QAddress" value="{!installer.QAddress}" />
+              <apex:column headerValue="QCity" value="{!installer.QCity}" />
+              <apex:column headerValue="QState" value="{!installer.QState}" />
+              <apex:column headerValue="QZip_Code" value="{!installer.QZip_Code}" />
+              <apex:column headerValue="QPhone_Number" value="{!installer.QPhone_Number}" />
+             
+        </apex:pageblocktable>
+     </apex:pageBlock>
+     <!--
+       <apex:pageBlock title="Import Installer Trainings" >
+            <apex:pageBlockSection columns="4"> 
+                  <apex:inputFile value="{!csvFileBody}" accept=".csv"  filename="{!csvAsString}"/>
+                  <apex:commandButton value="Import Installer Meetings" action="{!importCSVFile}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock >
+     
+     </apex:pageBlock>-->
+     
+   </apex:form>
+</apex:page>

@@ -1,0 +1,182 @@
+<apex:page standardController="Harness_Guide__c" extensions="VinLookupController" sidebar="false" id="pg" >
+    <style type="text/css">
+        .green {background-color: #FFFFFF; width:15%;}
+        .red {background-color: #FBEFF2; width:15%;}
+        .white {background-color: #FFFFFF; width:15%;}
+    </style>
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js" />
+    <apex:includeScript value="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/jquery-ui.min.js" />
+    <apex:styleSheet value="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.0/themes/smoothness/jquery-ui.css" />
+    <link href = "https://code.jquery.com/ui/1.10.4/themes/ui-lightness/jquery-ui.css" rel = "stylesheet"/>
+    <script src = "https://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src = "https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+    <script src="../../soap/ajax/39.0/connection.js" type="text/javascript"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script type="text/javascript">
+      
+    var j$ = jQuery.noConflict();
+
+       function changeCalled(){
+       console.log('Method Called'); 
+    sforce.connection.sessionId='{!GETSESSIONID()}';
+    Visualforce.remoting.Manager.invokeAction(
+              '{!$RemoteAction.VinLookupController.getCompany}',                                  
+              function companySearch(result, event){
+                  if(event.type == 'exception'){
+                      console.log('exception');
+                      return;
+                  }else{
+    var records = result;
+    console.log(records);
+      var accSet= [];
+    
+        for(i = 0; i < records.length ; i++) {
+         if(records[i].Company_Name__c != null){ 
+              console.log('Inside LOOP'+i);   
+              var record1= records[i].Id;
+              var record2=records[i].Company_Name__c;
+              if(accSet.indexOf(record2)==-1){
+                  accSet.push(record2);
+              }
+           } 
+      }
+    
+          j$("#txtAccountName").autocomplete({
+            source:accSet
+        });
+    }
+    
+   });
+   
+  }
+    </script>
+    <c:importvisualstrap />
+    <c:visualstrapblock >
+    <apex:form id="frm">
+        <c:panel title="Harness Lookup" type="primary"> 
+        
+        <h4>1)  Decode VIN or enter Year, Make and/or Model for vehicle.</h4>
+        <br> </br>
+        <h5>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;If you’re having trouble finding the vehicle, expand your search by entering only the Make to view all Models.</h5>
+        <br> </br>        
+        <h4>2)  Click Search to find compatible harnesses.</h4>
+        <br> </br>
+        <br> </br>
+     
+        <table class="table table-condensed table-hover table-bordered" width="100%">
+            
+            <!--  <tr>
+                  <td colspan="1" class="dataCell" nowrap="true" align="left">
+                  <apex:outputLabel value="Product Alignment Type"></apex:outputLabel>
+                  <apex:selectList styleClass="form-control" id="products" value="{!proAlign}" size="1" required="true">
+                  <apex:selectOptions value="{!Products}"/>
+                  </apex:selectList>
+                  </td> 
+                  </tr>    
+             -->
+           
+            <tr>
+                <td colspan="2" class="dataCell" nowrap="true" align="left">
+                <apex:outputLabel value="VIN Number"></apex:outputLabel>
+                </td>
+            </tr>
+
+            <tr>
+                <td  class="dataCell" nowrap="true" align="left">
+                <apex:inputText styleClass="form-control" html-placeholder="{!$ObjectType.Harness_Guide__c.Fields.VIN_Number__c.Label}" value="{!VINNumber}"/>                     
+                </td>
+                <td>
+                <div align="left">
+                <apex:commandButton id="getYMMButton" value="Get Year/Make/Model" styleClass="btn-primary" action="{!getVINDataMethod}" reRender="frm,pgMsgs" status="status" />                    
+                </div>
+                </td>
+           <!--   Add this later when we have different products
+                 <td class="dataCell" nowrap="true" width="2%" align="center">
+                     <apex:outputLabel value="OR"></apex:outputLabel>
+                 </td>
+                 <td  class="dataCell" nowrap="true" align="left">  
+                 <apex:inputHidden id="txtAccountName" value="{!accountNameToSearch }"  />
+                 <div class = "ui-widget">      
+                 <input id="txtAccountName"  type="text" placeholder="Enter company name to search" Class="form-control" value="{!accountNameToSearch}"  onblur="document.getElementById('{!$Component.txtAccountName}').value = this.value;" onmouseenter="changeCalled()" />
+                 </div>
+                 </td>
+           -->
+           </tr>
+           </table>
+           
+           <table class="table table-condensed table-hover table-bordered" width="100%">
+              <tr>
+                 <td colspan="2" class="dataCell" nowrap="true" align="left">
+                 <apex:outputLabel value="Year"></apex:outputLabel>
+                 </td>
+                 <td colspan="2" class="dataCell" nowrap="true" align="left">
+                 <apex:outputLabel value="Make"></apex:outputLabel>
+                 </td>
+                 <td colspan="2" class="dataCell" nowrap="true" align="left">
+                 <apex:outputLabel value="Model"></apex:outputLabel>
+                 </td>
+                 <td colspan="2" class="dataCell" nowrap="true" align="left">
+                 <apex:outputLabel value="Search"></apex:outputLabel>
+                 </td>
+                 </tr>
+              <tr >
+
+                 <td colspan="2" class="dataCell" nowrap="true" align="left">
+                 <apex:selectList styleClass="form-control"  value="{!harObjYearTo}" id="selYear" size="1" required="true" >
+                 <apex:selectOptions value="{!Options}"/>
+                 </apex:selectList>
+                 </td> 
+                 <td colspan="2" class="dataCell" nowrap="true" align="left"> 
+                 <apex:inputText styleClass="form-control" html-placeholder="{!$ObjectType.Harness_Guide__c.Fields.Make__c.Label}" value="{!harObjMake}"/> 
+                 </td> 
+                 
+            <!-- //removed by Rod 11/30/17
+                 <td colspan="2" class="dataCell" nowrap="true" align="left">
+                    <apex:outputLabel value="Hardware Type"></apex:outputLabel>
+                    <apex:selectList styleClass="form-control" id="countries" value="{!hardwareType}" size="1" required="true">
+                    <apex:selectOptions value="{!hardwareValues}"/>
+                    </apex:selectList>
+                </td> 
+            -->
+                <td colspan="2" class="dataCell" nowrap="true" align="left">
+                <apex:inputText styleClass="form-control" html-placeholder="{!$ObjectType.Harness_Guide__c.Fields.Model__c.Label}" value="{!harObjModel}"/>
+                </td> 
+                <td colspan="2" class="dataCell" nowrap="true" align="left">
+                <!-- <apex:outputLabel value="Search"></apex:outputLabel> -->
+                <apex:commandButton id="searchButton" value="Search" styleClass="btn-primary" action="{!performSearch}" reRender="frm,pgMsgs" status="status"/> 
+                 <!-- disabled="{!OR(harObjYearTo== '--None--',harObjModel == '', harObjMake='')}"/> -->
+                </td>
+             </tr>
+          </table>
+            
+           </c:panel>    
+               
+        <apex:actionFunction name="getVehicleData" action="{!getVINDataMethod}" reRender="frm,pgMsgs" />
+        <apex:outputPanel id="pgMsgs">
+            <apex:pageMessages />
+        </apex:outputPanel>
+        <apex:actionStatus id="status">
+                    <apex:facet name="start">
+                        <span style="color:red;">Loading</span> <img src="/img/loading.gif" />
+                    </apex:facet>
+                </apex:actionStatus>
+           <c:panel type="Primary" title="Search Results" id="pbResults" rendered="{!If((hgList.size>0),true,false)}">
+          
+               
+            
+              <apex:pageblock >
+              <apex:pageBlockTable styleClass="table table-condensed table-hover table-bordered" width="100%" value="{!hgList}" var="hg">
+                    <apex:repeat value="{!$ObjectType.Harness_Guide__c.fieldsets.Search}" var="fieldValue">
+                     <apex:column headerValue="{!fieldValue.label}">
+                         <apex:outputText value="{!IF(hg[fieldValue] <> null,hg[fieldValue],'ANY')}"></apex:outputText>
+                     </apex:column>
+                 </apex:repeat>
+              
+              </apex:pageBlockTable>
+                  
+              </apex:pageblock>
+              
+           </c:panel>         
+    </apex:form>
+</c:visualstrapblock>    
+</apex:page>

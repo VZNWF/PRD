@@ -1,0 +1,39 @@
+<apex:page tabStyle="Opportunity" StandardController="Opportunity" extensions="SelectOppRecordType">
+    <apex:includescript value="{!$Resource.JQuery}" />    
+    <apex:sectionHeader subtitle="Select Opportunity Record Type" title="New Opportunity"/>
+    <p>Select a record type for the new opportunity based on the descriptions below. </p>
+     <apex:pageMessages />
+    <apex:form >
+        <apex:pageBlock title="Select Opportunity Record Type"  >           
+           <apex:selectradio id="rblRecordType" title="Record type of new record" layout="pageDirection" value="{!SelectedRecordType}" >
+               <apex:selectOptions value="{! opprecordtypes }" >
+               </apex:selectOptions>
+           </apex:selectradio>             
+           <apex:pageBlockButtons location="bottom" >
+                <apex:commandButton id="btnContinue" value="Continue" action="{!RedirectBasedOnRecordType}" onclick="return EnablePrompt();"/>
+                <apex:commandButton value="Cancel" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+       </apex:pageBlock>          
+    </apex:form>
+    
+    <script>
+        function EnablePrompt() {
+            var myradios = $(':radio');
+            var showPrompt = false;
+            for(i = 0; i < myradios.length; i++) {
+                if(myradios[i].checked && myradios[i].value == '01240000000M5NGAA0') {
+                    showPrompt = true;
+                }
+            }
+            if(showPrompt) {
+                if(confirm('If this is not the FIRST standard Sales Opportunity, please Cancel and select Child Opportunity.')) {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+            return false;          
+        }
+    </script>
+</apex:page>

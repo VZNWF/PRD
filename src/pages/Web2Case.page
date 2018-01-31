@@ -1,0 +1,89 @@
+<apex:page controller="Web2CaseController" sidebar="false" showheader="false">
+<head>
+<apex:stylesheet value="../media/css/nwfStyle.css" />
+</head>
+<apex:form >  
+  <table border="0" columns="2" cellspacing="0" cellpadding="0">
+    <!--<th colspan="2">Contact Support</th>-->
+    <tr class="odd hide">
+      <td align="right" width="141">
+        <apex:outputLabel for="AccountName" value="Fleet Name:"/><span class="asterisk">*</span></td>
+      <td width="150"><apex:inputText id="AccountName" value="{!AcctName}" maxlength="30" tabindex="1" /></td>
+    </tr>
+    <tr class="even">
+      <td align="right" width="141"><apex:outputLabel for="UserID" value="User Name:"/></td>
+      <td width="150"><apex:inputText id="UserID" value="{!UserID}" maxlength="45" tabindex="2" html-readonly="true"/></td>
+    </tr>
+    <tr class="odd">
+      <td align="right" width="141"><apex:outputLabel for="FirstName" value="First Name:"/></td>
+      <td width="150"><apex:inputText id="FirstName" value="{!FirstName}" maxlength="40" tabindex="3" html-readonly="true" /></td>
+    </tr>
+    <tr class="even">
+      <td align="right" width="141"><apex:outputLabel for="LastName" value="Last Name:" /></td>
+      <td width="150"><apex:inputText id="LastName" value="{!LastName}" maxlength="80" tabindex="4"  html-readonly="true"/></td>
+    </tr>
+    <tr class="odd">
+      <td align="right" width="141"><apex:outputLabel value="Phone:" for="Phone"/></td>
+      <td width="150"><apex:inputText id="Phone" value="{!Phone}" maxLength="20" tabIndex="5" html-readonly="true"/></td>
+    </tr>
+    <tr class="even">
+      <td align="right" width="141"><apex:outputLabel value="Email:" for="Email" /><span class="asterisk">*</span></td>        
+      <td width="150"><apex:inputText id="Email" value="{!Email}" maxLength="100" tabIndex="6" html-readonly="true"/></td>
+    </tr>    
+    <tr class="odd">
+      <td align="right" width="141"><apex:outputLabel value="Confirm Email:" for="ConfirmEmail" /><span class="asterisk">*</span></td>        
+      <td width="150"><apex:inputText id="ConfirmEmail" value="{!ConfirmEmail}" maxLength="100" tabIndex="7" html-readonly="true"/></td>
+    </tr>
+    
+    <tr class="even">
+      <td align="right" ><apex:outputLabel value="Category:" for="Category"/></td>
+      <td width="150">
+        <apex:outputLabel value="Device:" for="DeviceCB"/><apex:inputCheckbox id="DeviceCB" tabIndex="8" value="{!DeviceCB}" />
+        <apex:outputLabel value="Website:" for="WebSiteB"/><apex:inputCheckbox id="WebSiteCB" tabIndex="9" value="{!WebSiteCB}" />
+        <apex:outputLabel value="Other:" for="OtherCB"/><apex:inputCheckbox id="OtherCB" tabIndex="10" value="{!OtherCB}"/>
+      </td>
+    </tr>
+    <tr class="odd">
+      <td align="right" width="141"><apex:outputLabel value="Serial Number:" for="SerialNbr"/></td>
+      <td width="150"><apex:inputText id="SerialNbr" value="{!SerialNumber}" maxLength="16" tabIndex="11"/></td>
+    </tr>
+    <tr class="even">
+      <td align="right" width="141"><apex:outputLabel value="VIN:" for="VIN"/></td>
+      <td width="150"><apex:inputText id="VIN" value="{!VIN}" maxLength="17" tabIndex="12"/></td>
+    </tr>
+    <tr class="odd">
+      <td align="right"><apex:outputLabel value="Vehicle Label:" for="VehicleLabel"/></td>
+      <td><apex:inputText id="VehicleLabel" value="{!VehicleLabel}" maxLength="150" tabIndex="13"/></td>
+    </tr>
+    <tr class="even">
+      <td align="right" width="141"><apex:outputLabel value="Case Summary:" for="Subject"/><span class="asterisk">*</span></td>
+      <td width="150"><apex:inputText id="Subject" value="{!Subject}" maxLength="255" tabIndex="14"/></td>
+    </tr>
+    <tr class="odd">
+      <td align="right" width="141"><apex:outputLabel value="Case Detail:" for="CaseDesc"/><span class="asterisk">*</span></td>
+      <td width="150"><apex:inputTextarea id="CaseDesc" rows="5"  value="{!CaseDesc}" tabIndex="15" onkeydown="checkLimit(this,this.form.countdown,2000);" onkeyup="checkLimit(this,this.form.countdown,2000);" onchange="checkLimit(this,this.form.countdown,2000);"/></td>
+    </tr>
+  </table>
+  <table cellspacing="0" cellpadding="0" border="0">
+    <tr class="even">
+      <td colspan="2">Please upload attachments such as screen shots, reports etc. to assist with resolution.
+        <apex:inputFile id="fileToUpload" value="{!fileBody}" filename="{!fileName}" /></td>
+    </tr>
+    <tr class="odd">
+      <td class="error"><apex:pageMessages /></td>
+      <td class="submit">Fields marked with an <span class="asterisk">*</span> are mandatory.
+        <apex:commandButton value="Submit" action="{!SubmitWeb2Case}" /></td>
+    </tr>
+  </table>
+  <script>
+        function checkLimit(limitField, limitCount, limitNum)
+        {
+            if (limitField.value.length > limitNum) {
+                limitField.value = limitField.value.substring(0, limitNum);
+            } else {
+                limitCount.value = limitNum - limitField.value.length;
+            }
+        }    
+   </script>
+</apex:form>
+</apex:page>

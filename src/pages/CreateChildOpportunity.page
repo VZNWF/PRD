@@ -1,0 +1,222 @@
+<apex:page standardController="Opportunity" extensions="CreateChildOpportunityController" action="{!RedirectBasedOnRecordType}">
+
+
+    <apex:form >
+
+		<style>
+			#statusPanel {
+				position: absolute;
+				top: -9999em;
+				left: -9999em;
+				background-color: #666;
+				color: #fff;
+				padding: 10px;
+				border-radius: 5px;
+				-moz-border-radius: 5px;
+				-webkit-border-radius: 5px;
+			}
+		</style>
+		
+		<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+		
+		<script language="JavaScript">
+		
+			var g_defaultLookUpVal = '';
+
+			//Regular cross-browser compatible document.getElementById
+			//I use this function get Visualforce element to deal with any potential character issues
+			//in the Visualforce element's Id.
+			//I know I could escape these characters, but I don't like that approach
+		    function getElement(id) {
+		    
+			   var element = null;
+			   
+			   if (document.layers) {
+			    element = document.layers[id];
+			   } else if (document.all) {
+			    element = document.all[id];
+			   } else if (document.getElementById) {
+			    element = document.getElementById(id);
+			   }
+			   
+			   return element;
+			}
+			
+			//Checks to see if specified object is Empty	
+			function isEmpty(obj) {
+			
+			    // undefined and null are empty
+			    if (obj === undefined || obj == null) return true;
+			    // Assume if it has a length property with a non-zero value
+			    // that that property is correct.
+			    if (obj.length && obj.length > 0)    return false;
+			    if (obj.length === 0)  return true;
+			
+			    for (var key in obj) {
+			        if (hasOwnProperty.call(obj, key))    return false;
+			    }
+			
+			    return false;
+			}
+			
+			//Checks to see if Account Id is valid, if so, then do a server call to get Parent Opportunities filtered by the Account Id
+			function waitForLKid() {
+
+				var jqAccFilter = $(getElement('{!$Component.pgBlkCCOpp.pgBlkSecAccFilter.pgBlkSecItmAccFilter.txtAccountFilter}'));
+				var jqLkid = $(getElement('{!$Component.pgBlkCCOpp.pgBlkSecAccFilter.pgBlkSecItmAccFilter.txtAccountFilter}_lkid'));
+		
+				//No account Id found, show user empty results panel
+				if(isEmpty(jqLkid.val()) || (jqLkid.val() == g_defaultLookUpVal)) {
+					
+					$(getElement('{!$Component.txtSelectedOppId}')).val('');
+					
+					FilterOpportunitiesByAccount('');
+				}
+			    else if(!isEmpty(jqAccFilter.val()) && !isEmpty(jqLkid.val()) && jqLkid.val() != g_defaultLookUpVal) {
+					
+					//Account Id found, do a server call
+			   		FilterOpportunitiesByAccount(jqLkid.val());
+			   	}
+						
+			}
+			
+			//Used by the radio button to pass their values back to a Visualforce binded hidden textbox
+			function selectOpportunityId(oppId) {
+			
+			
+				$(getElement('{!$Component.txtSelectedOppId}')).val(oppId);
+			}
+			
+			function showStatusPanel() {
+				var top = (jQuery(window).height() - jQuery('#statusPanel').outerHeight()) / 2 + jQuery(window).scrollTop();
+				var left = (jQuery(window).width() - jQuery('#statusPanel').outerWidth()) / 2 + jQuery(window).scrollLeft();
+				jQuery('#statusPanel').appendTo('body').css({top: (top > 0 ? top : 0) + 'px', left: (left > 0 ? left : 0) + 'px'});
+			}
+
+			function hideStatusPanel() {
+				jQuery('#statusPanel').css({top: '-9999em', left: '-9999em'}); 
+			}
+			
+			$(document).ready(function() {
+		
+				var jqAccFilter = $(getElement('{!$Component.pgBlkCCOpp.pgBlkSecAccFilter.pgBlkSecItmAccFilter.txtAccountFilter}'));
+				var jqLkid = $(getElement('{!$Component.pgBlkCCOpp.pgBlkSecAccFilter.pgBlkSecItmAccFilter.txtAccountFilter}_lkid'));
+
+				g_defaultLookUpVal = '000000000000000';
+				
+				//Bind change event to Account Filter textbox to listen for any Account Filter changes
+				//Could have binded to hidden Account Filter Id textbox, but hidden textboxes don't have a change event
+				jqAccFilter.change(function() {
+				
+					showStatusPanel();
+					
+					//Wait for 5 milliseconds so that hidden Account Filter Id textbox could be populated
+				 	setTimeout(waitForLKid, 5);
+				});
+				 	 
+			});
+		
+		</script>
+	    
+	    <apex:pageMessages />
+	    <br/>
+	    
+	   <br/> 
+	    <div id="statusPanel"><img src="{!URLFOR($Resource.Spinner)}" width="16" height="16" style="vertical-align: middle;"/> Loading...</div>
+	    
+        <apex:pageBlock id="pgBlkCCOpp" title="Create Child Opportunity" mode="edit">
+        
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!Save}" value="Select" disabled="{!IsOnGpHold}"/>
+                <apex:commandButton action="{!Cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            
+            <apex:pageBlockSection id="pgBlkSecAccFilter" title="Select an Account to Filter By:" columns="2">
+  				<apex:pageBlockSectionItem id="pgBlkSecItmAccFilter">
+                    <apex:outputLabel value="Account" for="txtAccountFilter"/>
+                    <apex:inputField value="{!NewOpportunity.AccountId}" id="txtAccountFilter"/> 
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection id="pgBlkSecOpp" title="Select an Opportunity" columns="2">
+            	
+
+            	<apex:outputpanel id="pnlAccountOnHold" rendered="{!IsOnGPHold}">
+            		<b>This account is on Hold. You cannot create a new Opportunity at this time.</b>
+            	</apex:outputpanel>
+
+            	<apex:pageBlockSectionItem id="pgBlkSecItmResults" rendered="{!NOT(IsOnGPHold)}">
+            	
+
+                    <apex:outputpanel id="pnlBigResults" >
+            		
+            			<div style="text-align:center">
+            			
+			            	<apex:outputpanel id="pnlNoResults" style="{!IF(NOT(MatchesFound), '','display:none')}">
+			            		<b>No Opportunities were found.</b>
+			            	</apex:outputpanel>
+			            	
+			            	<apex:outputpanel id="pnlResults" rendered="{!IF(MatchesFound, '', 'display:none')}">
+			            	
+			            		<apex:pageBlockTable value="{!ParentOpportunitiesList}" var="opp">
+			
+									<apex:column >
+										 
+									    <apex:facet name="header">Select</apex:facet>
+									    
+									    <apex:outputpanel >
+											<input type="radio" id="rBtnOpp{!opp.Id}" name="opportunityGroup" value="{!opp.Id}" onclick="selectOpportunityId('{!opp.Id}');" />
+										</apex:outputpanel>&nbsp;
+										
+									</apex:column>
+						            <apex:column headervalue="Opportunity Name" value="{!opp.Name}"/> 
+									
+									<apex:column >
+										 
+									    <apex:facet name="header">Opportunity Owner</apex:facet>
+									    
+									    {!opp.Owner.FirstName}&nbsp;{!opp.Owner.LastName}
+										
+									</apex:column>
+									
+									<apex:column headervalue="Account/Customer Number" value="{!opp.Account.AccountNumber}"/> 
+									<apex:column headervalue="Stage" value="{!opp.StageName}"/> 
+									<apex:column headervalue="Close Date" value="{!opp.CloseDate}"/>
+									<apex:column headervalue="Unit Total" value="{!opp.Unit_Total__c}"/>
+									
+						        </apex:pageBlockTable>
+						        
+						        
+							    <script language="JavaScript">
+						        	
+						        	var selectedOpportunityId = '{!SelectedOpportunityId}';
+						        	
+						        	if(!isEmpty(selectedOpportunityId)) {
+				
+						        		$('#rBtnOpp' + selectedOpportunityId).prop('checked','true');
+					        		}
+						        			
+						        </script>
+						        
+			            	</apex:outputpanel>
+		            	
+		            	</div>
+	            	
+	            	</apex:outputpanel>
+	            	
+            	</apex:pageBlockSectionItem>
+            		
+            </apex:pageBlockSection>
+            
+        </apex:pageBlock>
+        
+	    <apex:inputHidden value="{!SelectedOpportunityId}" id="txtSelectedOppId"/>
+	        	
+        <apex:actionFunction action="{!FilterOpportunitiesByAccount}" name="FilterOpportunitiesByAccount" rerender="pnlBigResults, txtSelectedOppId, pgBlkCCOpp, pgBlkSecOpp" oncomplete="hideStatusPanel();">
+        	<apex:param name="AccountId" assignTo="{!AccountId}" value="" />
+    	</apex:actionFunction>
+    	
+    	
+    </apex:form>
+    
+</apex:page>

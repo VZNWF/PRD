@@ -1,0 +1,23 @@
+<apex:page standardController="Order_Tracking__c" extensions="OpportunitySearchController">  
+    <style type="text/css">
+        body {background: #F3F3EC; padding-top: 15px}
+    </style>
+
+    <apex:form >
+        <apex:pageBlock id="block" mode="edit">       
+            <apex:inputhidden value="{!Order_Tracking__c.SF_Opp_ID__c}" />
+            <apex:actionStatus id="status" startText="Searching... please wait..."/>
+            <apex:pageBlockSection id="resultsBlock" columns="1">
+                <apex:pageBlockTable value="{!searchResults}" var="o" rendered="{!NOT(ISNULL(searchResults))}">
+                    <apex:column headerValue="Opportunity Name">
+                        <apex:outputLink target="_blank" value="/{!o.Id}">{!o.Name}</apex:outputLink>
+                    </apex:column>
+                    <apex:column value="{!o.StageName}"/>
+                    <apex:column value="{!o.Amount}"/>
+                    <apex:column value="{!o.CloseDate}"/>
+                </apex:pageBlockTable>
+            </apex:pageBlockSection>
+
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

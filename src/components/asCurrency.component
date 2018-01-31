@@ -1,0 +1,19 @@
+<apex:component access="global">
+    <apex:attribute name="amount" type="Decimal" 
+    description="The value to be rendered as currency."   
+  />{!IF(amount != null,
+  " $" & IF( 
+    amount >= 1000000, 
+    TEXT(FLOOR(amount / 1000000)) & ",", 
+    "") & 
+  IF( 
+    amount >= 1000, 
+    RIGHT(TEXT(FLOOR(amount / 1000)), 3) & ",", 
+    "") & 
+  RIGHT(TEXT(FLOOR(amount)), 3) & "." & 
+  IF( 
+    MOD(amount, 1) * 100 < 10, 
+    "0" & TEXT(ROUND(MOD(amount, 1), 2) * 100), 
+    TEXT(MIN(ROUND(MOD(amount, 1), 2) * 100, 99)))
+    ,"")}
+</apex:component>

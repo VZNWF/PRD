@@ -1,0 +1,17 @@
+<apex:page standardController="Welcome_Call__c" extensions="WelcomeCallOpportunityLineItemsCntrl" action="{!initPage}">
+
+<apex:pageBlock id="records">
+	<apex:pageBlockTable value="{!opportunityLineItems}" var="opportunityLineItem">
+		<apex:column headerValue="{!$ObjectType.Product2.fields.Name.Label}">
+			<apex:outputField value="{!opportunityLineItem.Product2.Name}"/>
+		</apex:column>
+		<apex:column headerValue="{!$ObjectType.OpportunityLineItem.fields.Quantity.Label}">
+			<apex:outputField value="{!opportunityLineItem.Quantity}"/>
+		</apex:column>
+		<apex:column headerValue="{!$ObjectType.OpportunityLineItem.fields.Category__c.Label}">
+			<apex:outputField value="{!opportunityLineItem.Category__c}"/>
+		</apex:column>
+	</apex:pageBlockTable>
+</apex:pageBlock>
+
+</apex:page>

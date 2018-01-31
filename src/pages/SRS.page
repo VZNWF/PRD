@@ -1,0 +1,2658 @@
+<apex:page title="SRS" cache="false" docType="html-5.0" standardStylesheets="false" sidebar="false" showChat="false" showHeader="false" controller="SRSController" action="{!redirectCustomerSRS}">
+    <script src="../../soap/ajax/39.0/connection.js" type="text/javascript"></script>
+    <head>
+        <meta charset="utf-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1"/>
+                <meta http-equiv="X-UA-Compatible" content="IE=10"/>
+                    <script src = "https://cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"/>
+                        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.15/css/jquery.dataTables.min.css" /> 
+                            <apex:stylesheet value="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+                                <apex:includeScript value="//code.jquery.com/jquery-2.1.4.min.js"/>
+                                    <apex:includeScript value="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"/>
+                                        <link href="https://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet"></link>
+                                        <script src="https://code.jquery.com/ui/1.10.2/jquery-ui.js" ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
+    <style type="text/css">
+        .verticalPanel { width: 20%; height: 100%;}
+        .setLeft {
+            padding-top: 10px;
+            //padding-right: 30px;
+            padding-bottom: 5px;
+            padding-left: 0px;
+        }
+        
+        .btnSet{
+            padding-top: 10px;       
+            padding-bottom: 10px;
+        }
+        
+        .scheduleButton {
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 4px;
+            -webkit-box-shadow: 0px 0px 0px #666666;
+            -moz-box-shadow: 0px 0px 0px #666666;
+            box-shadow: 0px 0px 0px #666666;
+            font-family: 'ArialMT', 'Arial';
+            font-weight: 400;
+            font-style: normal;
+            color: #ffffff !important;
+            font-size: 16px;
+            text-align: center;
+            line-height: normal;
+            background: #D52B1E;
+            padding: 8px 11px 8px 11px;
+            border: solid #ffffff 0px;
+            text-decoration: none;
+        }
+        
+        .mybtn {
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 4px;
+            -webkit-box-shadow: 0px 0px 0px #666666;
+            -moz-box-shadow: 0px 0px 0px #666666;
+            box-shadow: 0px 0px 0px #666666;
+            font-family: 'ArialMT', 'Arial';
+            color: #ffffff !important;
+            font-size: 16px;
+            background: #747676;
+            padding: 5px 11px 5px 11px;
+            border: solid #8c1f31 0px;
+            text-decoration: none;
+        }
+        .mybtn-active{
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
+            border-radius: 4px;
+            -webkit-box-shadow: 0px 0px 0px #666666;
+            -moz-box-shadow: 0px 0px 0px #666666;
+            box-shadow: 0px 0px 0px #666666;      
+            font-family: 'ArialMT', 'Arial';
+            color: #ffffff !important;
+            font-size: 16px;
+            background: #d93434;
+            padding: 5px 11px 5px 11px;
+            border: solid #8c1f31 0px;
+            text-decoration: none;
+        }
+        .btn-danger {
+            color: #fff;
+            background-color: #D52B1E;
+            border-color: #d43f3a;
+        }
+        
+        .errorClass { 
+            border:  1px solid #D52B1E; 
+        }
+        .strike {
+            display: block;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap; 
+        }
+        
+        .strike > span {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .strike > span:before,
+        .strike > span:after {
+            content: "";
+            flex-grow: 1;
+            position: absolute;
+            top: 50%;
+            width: 9999px;
+            height: 1px;
+            background: rgba(0, 0, 0, 0.35);
+        }
+        
+        .strike > span:before {
+            right: 100%;
+            margin-right: 15px;
+        }
+        
+        .strike > span:after {
+            left: 100%;
+            margin-left: 15px;
+        }
+        .panel-heading{
+            style : width:30px !important;
+        }
+        .modal-body {
+            max-height: calc(100vh - 212px);
+            overflow-y: auto;
+        }
+        .modal-dialog {
+            margin-top: 0;
+            margin-bottom: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .modal.fade .modal-dialog {
+            transform: translate(0, -100%);
+        }
+        
+        .modal.in .modal-dialog {
+            transform: translate(0, 0);
+        }
+        
+        
+        @font-face{
+        
+        font-family: vgnVerizonApexBook;
+            src: url("{!URLFOR($Resource.VerizonApexBook)}");
+        }
+        
+        @font-face{
+        
+        font-family: vgnVerizonApexBook_IE;
+            src: url("{!URLFOR($Resource.VerizonApexBookEOT)}");
+        }
+        @font-face{
+        
+        font-family: vgnVerizonApexBook_WOFF;
+            src: url("{!URLFOR($Resource.VerizonApexBookWOFF)}");
+        }
+        
+        #title1{
+            font-family: vgnVerizonApexBook,vgnVerizonApexBook_IE,vgnVerizonApexBook_WOFF,Arial,sans-serif !important;
+            font-size: 24px !important;
+            display: block;
+            color:black;
+        }
+        
+        #subtitle1{
+            font-family: vgnVerizonApexBook,vgnVerizonApexBook_IE,vgnVerizonApexBook_WOFF,Arial,sans-serif !important;
+            font-size: 20px !important;
+            display: block;
+            color:black;
+            padding-left:5px;
+        }
+        
+        .headerRow{
+            background : #D52B1E;
+        }
+        .rowHeaderClass {
+            overflow: hidden;
+            white-space: nowrap;        
+            text-overflow: ellipsis; 
+        }
+        .dataTables_length{
+            padding-top: 10px;
+        }
+        .dataTables_filter{
+            padding-top: 10px;
+            padding-bottom: 10px;
+        }
+        .hideAlternate{
+            display:none;
+        }
+        
+        table.vehicleTable>thead>tr>th {
+            background : #F0F8F8 !important;
+            color : #747676 !important;
+        }
+        .ui-widget-header {
+            background: #ffffff !important;
+            padding-left: 0px;
+            border-top-width: 0px;
+            border-bottom-width: 0px;
+            border-right-width: 0px;
+            border-left-width: 0px;
+        }
+        .ui-state-default{
+            color: #ffffff;
+        }
+        .dataTables_filter input {
+            border-radius: 10px;
+            line-height: 2;
+        }
+        .highlightLocation{
+            background-color: cyan;
+            font-weight: bold;
+        }  
+        
+        .apexp{
+            overflow-x: auto;
+        }
+        
+        .ext-chrome {
+            padding-right: 0px !important;
+        }
+        #myModal2.editMode .btnSaveAndNew{display:none}
+        #myModal2.editMode .btnaddnewlocation{display:none}
+        
+        /* rounded  list style                    */        
+        
+        /* list */
+        .rounded-list ol 
+        {
+        counter-reset:li; /* Initiate a counter */
+        margin-left:0; /* Remove the default left margin */
+        padding-left:0; /* Remove the default left padding */
+        }
+        
+        /* item  */
+        .rounded-list ol > li
+        {
+        position:relative; /* Create a positioning context */
+        list-style:none; /* Disable the normal item numbering */
+        //background:#f6f6f6; /* Item background color */
+        margin:0; /* Give each list item a left margin to make room for the numbers */
+        padding-left: 15px; /* Add some spacing around the content */
+        padding-bottom:0px;
+        padding-top:0px;
+        line-height:13px;
+        }
+        
+        /* number  */
+        .rounded-list ol > li p:before
+        {
+        content: counter(li); 
+        counter-increment: li; 
+        position: absolute; 
+        left: -1.3em;
+        top: 50%;
+        
+        /* number background */
+        //background: #87ceeb;
+        background: #333333; 
+        height: 2em;
+        width: 2em;
+        margin-top: -1em;
+        line-height: 1.5em;
+        border: .3em solid #fff;
+        text-align: center;
+        font-weight: bold;
+        border-radius: 2em;
+        color:#FFFFFF;
+        }
+        
+        /* -------------------------------------- */ 
+    </style>
+    <script>
+    j$ = jQuery.noConflict();
+    j$( document ).ready(function() {
+        updateCountdown();
+        j$('.checkNotes').change(updateCountdown);
+        j$('.checkNotes').keyup(updateCountdown);
+        disableFields(); 
+        showLocationPanel();
+        
+        // function to display optional fields
+        displayOptionalFields();
+        
+        // function to update image icons for multi select picklist
+        updateMultiSelectPicklist();
+        
+        // function to handle modal close events
+        handleCloseModal();
+        
+        // to open help instruction
+        userGuide();
+        
+        // to show required optional fields by default
+        onChangeService();
+        
+        // to disable search buttons on page load
+        disableSearchButtons();
+    });
+    
+    function onChangeService(){
+        optionalFieldArr = [];
+        j$('.optionalField').hide();
+        j$('#txtMandatoryDiv').hide();
+        j$('[id$=serviceType]').each(function (){ 
+            if(j$(this).val() == 'Install'){
+                optionalFieldArr = ['deviceType', 'harnessType', 'licensePlate', 'licenseState', 'fuelType','txtMandatory'];
+            }
+            else if(j$(this).val() == 'Swap'){
+                optionalFieldArr = ['deviceType', 'harnessType', 'licensePlate', 'licenseState', 'fuelType', 'oldSerial', 'returnTo','txtMandatory'];
+            }
+                else if(j$(this).val() == 'Transfer'){
+                    optionalFieldArr = ['oldVIN', 'deviceType', 'harnessType', 'licensePlate', 'licenseState', 'fuelType', 'txtMandatory'];
+                }
+                    else if(j$(this).val() == 'Removal'){
+                        optionalFieldArr = ['deviceType', 'harnessType', 'licensePlate', 'licenseState', 'returnTo'];
+                    }
+                        else if(j$(this).val() == 'Troubleshoot') {
+                            optionalFieldArr = ['deviceType','harnessType','licensePlate','licenseState','txtMandatory'];
+                        }
+                            else if(j$(this).val() == 'Install Add-On Only') {
+                                optionalFieldArr = [];
+                            }
+                                else if(j$(this).val() == 'Swap Add-On Only'){
+                                    optionalFieldArr = ['returnTo'];
+                                }
+                                    else if(j$(this).val() == 'Transfer Add-On Only') {
+                                        optionalFieldArr = ['oldVIN','licensePlate','licenseState','fuelType'];
+                                    }
+                                        else if(j$(this).val() == 'Removal Add-On Only') {
+                                            optionalFieldArr = ['licensePlate','licenseState','returnTo'];
+                                        }
+                                            else if(j$(this).val() == 'Troubleshoot Add-On Only'){
+                                                optionalFieldArr = ['licensePlate','licenseState'];
+                                            }
+        });
+        
+        showOptionalFields(optionalFieldArr);
+        displaySensors('sensorFields');
+    }
+    
+    function fetchAvailableAccessories(){
+        fetchAvailableAccessories();
+        onChangeService();          
+    }
+    
+    function showOptionalFields(optionalFieldArr){        
+        for(var i = 0; i < optionalFieldArr.length ; i++) {            
+            j$('#'+optionalFieldArr[i]+'Div').show();
+        }
+    }
+    
+    function displayOptionalFields(){
+        
+        // function to display fields
+        j$('[id$=serviceType]').change(function (){
+            j$('.optional').css('display','none');             
+            j$('[id$=serviceType]').each(function (){
+                if(j$(this).val() == 'Swap') {
+                    j$('.swapField').css('display','block');
+                }
+                else if(j$(this).val() == 'Transfer'){
+                    j$('.transferField').css('display','block');
+                }
+                    else if(j$(this).val() == 'Removal'){
+                        j$('.removalField').css('display','block');
+                    }
+            }); 
+        }); 
+        
+        // function to hide device type field
+        j$('[id$=serviceType]').change(function (){
+            j$('.hideDeviceType').css('display','block');             
+            j$('[id$=serviceType]').each(function (){
+                if(j$(this).val().indexOf("Add-On Only") >= 0) {
+                    j$('.hideDeviceType').css('display','none');
+                }
+            }); 
+        });  
+        
+        // function to display Other Model field
+        j$('[id$=model]').change(function (){
+            j$('.otherModel').css('display','none');
+            j$('[id$=model]').each(function (){
+                if(j$(this).val() == 'Other') {
+                    j$('.otherModel').css('display','block');
+                }
+            });
+        });
+        
+        // function to display Other Color field
+        /* //////////////// Commented as per Jira IT-2802, can be reverted in future ////////////////////// 
+        j$('[id$=color]').change(function (){
+            j$('.otherColor').css('display','none');
+            j$('[id$=color]').each(function (){
+                if(j$(this).val() == 'Other') {
+                    j$('.otherColor').css('display','block');
+                }
+            });
+        });*/
+        
+        
+        // function to display input fields for YMM when Not a Vehicle is checked
+        j$('[id$=noEquipment]').click(function (){
+            if(j$(this).is(':checked') == false){
+                j$('.selectVehicleFields').css('display','block');
+                j$('.inputVehicleFields').css('display','none');
+                j$('[id$=vinDecode]').removeAttr("disabled"); 
+            }
+            else if(j$(this).is(':checked') == true){
+                j$('.inputVehicleFields').css('display','block');
+                j$('.selectVehicleFields').css('display','none');
+                j$('[id$=inputyear]').removeAttr("disabled");
+                j$('[id$=inputmake]').removeAttr("disabled");
+                j$('[id$=inputmodel]').removeAttr("disabled");
+                j$('[id$=vinDecode]').prop("disabled", true);
+                
+            }
+        });
+        
+    }
+    
+    // to display fields when service type is selected as swap/removal/transfer for edit record
+    
+    function editdisplayOptionalFields(){
+        j$('[id$=serviceType]').each(function (){
+            if(j$(this).val() == 'Swap') {
+                j$('.swapField').css('display','block');
+            }
+            else if(j$(this).val() == 'Transfer'){
+                j$('.transferField').css('display','block');
+            }
+                else if(j$(this).val() == 'Removal'){
+                    j$('.removalField').css('display','block');
+                }
+        });
+        
+        
+        if(j$('[id$=noEquipment]').is(':checked') == false){
+            j$('.selectVehicleFields').css('display','block');
+            j$('.inputVehicleFields').css('display','none');
+            j$('[id$=vinDecode]').removeAttr("disabled"); 
+        }
+        else if(j$('[id$=noEquipment]').is(':checked') == true){
+            j$('.inputVehicleFields').css('display','block');
+            j$('.selectVehicleFields').css('display','none');
+            j$('[id$=inputyear]').removeAttr("disabled");
+            j$('[id$=inputmake]').removeAttr("disabled");
+            j$('[id$=inputmodel]').removeAttr("disabled");
+            j$('[id$=vinDecode]').prop("disabled", true); 
+        }
+        
+        // function to hide device type field
+        j$('[id$=serviceType]').each(function (){
+            if(j$(this).val().indexOf("Add-On Only") >= 0) {
+                j$('.hideDeviceType').css('display','none');
+            }
+        });
+        
+    } 
+    
+    function toggler(divId) {
+        j$("#" + divId).toggle();
+    }
+    
+    // on edit if sensor fields has data, display fields else hide fields
+    function displaySensors(divId){
+        var cond = j$('[id$=sensor]').is(':checked');
+        if(cond){ 
+            j$("#" + divId).toggle(cond);
+        }else{
+            j$("#" + divId).toggle(cond);
+        }
+    }
+    
+    // function to invoke location save
+    function saveLocation(param){
+        var fieldsFilled = true;
+        var zipFlag;
+        var emailFlag;
+        var phoneFlag;
+        j$('.locError').remove(); 
+        if(param == 'location'){           
+            j$(".validateRequired").each(function(){                
+                
+                if(j$(this).val() == '' || j$(this).val() == '--select--'){
+                    fieldsFilled = false;
+                    j$(this).addClass('errorClass');
+                    j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please fill the above field</span></div>").insertAfter(this);
+                }
+                else{
+                    j$(this).removeClass('errorClass');
+                }
+            });
+        }
+        else{
+            j$(".validateRequiredadd").each(function(){
+                if(j$(this).val() == '' || j$(this).val() == '--select--'){
+                    fieldsFilled = false;
+                    j$(this).addClass('errorClass');
+                    j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please fill the above field</span></div>").insertAfter(this);
+                }
+                else{
+                    j$(this).removeClass('errorClass');
+                }
+            }); 
+        }
+        zipFlag = validateZip();
+        emailFlag = validateEmail();
+        phoneFlag = validatePhone();
+        console.log(fieldsFilled+''+zipFlag+''+emailFlag+''+phoneFlag);
+        if(fieldsFilled == true && zipFlag == true && emailFlag == true && phoneFlag == true){
+            savedLocation();
+            console.log(param);
+            if(param == 'location'){
+                $("#myModal1").modal('hide');
+                $("#myModal").modal();
+            }else{
+                $('#myModal3').modal('toggle');
+                validateServices();
+                $("#myModal2").modal({backdrop: "static"});
+            }
+        }
+    }
+    
+    function validateZip(){
+        if(document.getElementById('j_id0:mainform:addcountry').value == 'USA'){
+            var zipFlag = true;
+            var zipRegex = /[^0-9]/; // Regular Expression to validate 5 digit zip code
+            j$(".validateZip").each(function(){
+                if(j$(this).val() != ''){
+                    if(j$(this).val().length != 5){
+                        j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Zip code must be 5 digits</span></div>").insertAfter(this);
+                        zipFlag = false;
+                    }
+                    else if(zipRegex.test(j$(this).val())){
+                        j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Zip code must be numeric</span></div>").insertAfter(this);
+                        zipFlag = false;
+                    }
+                        else{
+                            zipFlag = true;
+                        }
+                }
+            });
+            return zipFlag; 
+        } else{
+            var zipFlag = true;
+            j$(".validateZip").each(function(){
+                if(j$(this).val() != ''){
+                    if(j$(this).val().length != 7){
+                        j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Zip code must be 7 digits</span></div>").insertAfter(this);
+                        zipFlag = false;
+                    }
+                }
+                
+            });
+            return zipFlag;
+        } 
+    } 
+    
+    
+    function validateEmail(){
+        var emailFlag = true;
+        var emailRegex = /^\w+[\w-\.]*\@\w+((-\w+)|(\w*))\.[a-z]{2,3}/; //Regular Expression to validate email address            
+        j$(".validateEmail").each(function(){
+            if(j$(this).val() != ''){                
+                if(!j$(this).val().toLowerCase().match(emailRegex)){
+                    j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Email is not valid</span></div>").insertAfter(this);
+                    emailFlag = false;                    
+                }
+                else{
+                    emailFlag = true;                    
+                }
+            }
+        });
+        return emailFlag; 
+    }
+    
+    function validatePhone(){
+        var phoneFlag = true;
+        var phoneRegex = /[^0-9]/; //Regular Expression to validate phone number            
+        j$(".validatePhone").each(function(){
+            if(j$(this).val() != ''){  
+                if(j$(this).val().length != 10){
+                    j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Phone must be 10 digits</span></div>").insertAfter(this);
+                    phoneFlag = false;
+                }              
+                else if(phoneRegex.test(j$(this).val())){
+                    j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Phone must be numeric</span></div>").insertAfter(this);
+                    phoneFlag = false;
+                }
+                    else{
+                        phoneFlag = true;
+                    }
+            }
+        });
+        return phoneFlag;
+    }
+    
+    //function to validate and save vehicle to order
+    
+    function saveVehicle(){
+    
+        j$('.locError').remove();
+        var returnToFlag = true;
+        var vinFlag = true;
+        var oldSerialFlag = true;
+        var oldVINFlag = true;
+        var sensorFlag = true;
+        var otherModelFlag = true;
+        var navFlag = true;
+        var colorFlag = true;
+        var otherColorFlag = true;
+        var deviceTypeFlag = true;
+        deviceTypeFlag = validatedeviceType();
+        vinFlag = validateVINnumber();
+        returnToFlag = validateReturnToVehicle();
+        //oldSerialFlag = validateOldSerial();
+        // oldVINFlag = validateOldVIN();
+        sensorFlag = validateSensor();
+        otherModelFlag = validateOtherModel();
+        navFlag = validateNotaVehicle();
+        colorFlag = validateColor();
+        otherColorFlag = validateOtherColor();
+        console.log(deviceTypeFlag +' '+returnToFlag+' '+vinFlag+' '+oldSerialFlag+' '+oldVINFlag+' '+sensorFlag+' '+otherModelFlag+' '+navFlag+' '+' '+colorFlag+' '+otherColorFlag);
+        if(deviceTypeFlag == true && otherColorFlag == true && colorFlag == true && returnToFlag == true && vinFlag == true && oldSerialFlag == true && oldVINFlag == true && sensorFlag == true && otherModelFlag == true && navFlag == true){
+            
+            savedVehicle();
+
+            $("#myModal2").modal('hide');        
+            
+        }
+    }
+    
+    //function to validate color
+    
+    function validateColor(){
+        var colorFlag = true;
+        var colorVal = j$('[id$=color]').val();
+        if(colorVal == '' || colorVal == '--Select--'){
+            colorFlag = false;
+            j$('[id$=color]').addClass('errorClass');
+            j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please fill the above field</span></div>").insertAfter(j$('[id$=color]'));
+        }
+        else{
+            colorFlag = true;
+            j$('[id$=color]').removeClass('errorClass');
+        }
+        
+        return colorFlag;    
+    }
+    
+    // function to validate device type
+    
+    function validatedeviceType(){
+        var deviceFlag = true;
+        var deviceVal = j$('[id$=deviceType]').val();
+        var service = j$('[id$=serviceType]').val();
+        if((service == 'Install' || service == 'Swap' || service == 'Transfer' || service == 'Troubleshoot' )){
+            if(deviceVal == '' || deviceVal == '--Select--'){
+                deviceFlag = false;
+                j$('[id$=deviceType]').addClass('errorClass');
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please fill the above field</span></div>").insertAfter(j$('[id$=deviceType]'));
+            }
+            else{
+                deviceFlag = true;
+                j$('[id$=deviceType]').removeClass('errorClass');
+            }
+        }
+        else{
+            deviceFlag = true;
+            j$('[id$=deviceType]').removeClass('errorClass');
+        }
+        
+        return deviceFlag;    
+    }
+    
+    // function validate other Color field
+    
+    function validateOtherColor(){
+        var otherColorFlag = true;
+        /* //////////////// Commented as per Jira IT-2802, can be reverted in future ////////////////////// 
+        var colorVal = j$('[id$=color]').val();
+        var otherColorVal = j$('[id$=otherColor]').val();
+        if(colorVal == 'Other' && otherColorVal == ''){
+            otherColorFlag = false;
+            j$('[id$=otherColor]').addClass('errorClass');
+            j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please fill the above field,when color is selected as Other.</span></div>").insertAfter(j$('[id$=otherColor]'));
+        }
+        else{
+            otherColorFlag = true;
+            j$('[id$=otherColor]').removeClass('errorClass');
+        } */
+        return otherColorFlag;
+    }
+    
+    // function to validate vin,year,make & model
+    
+    function validateVINnumber(){
+        var vinFlag = true;
+        if(j$('[id$=noVIN]').is(':checked') == false && j$('[id$=vinNumber]').val() == '' && j$('[id$=noEquipment]').is(':checked') == false){
+            j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter VIN Number</span></div>").insertAfter(j$('[id$=vinNumber]'));
+            vinFlag = false;
+        }
+        else if(j$('[id$=noVIN]').is(':checked') == true && j$('[id$=noEquipment]').is(':checked') == false){
+            if(j$('[id$=year]').val() == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter Year</span></div>").insertAfter(j$('[id$=year]'));
+                vinFlag = false;    
+            }
+            if(j$('[id$=make]').val() == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter Make</span></div>").insertAfter(j$('[id$=make]'));
+                vinFlag = false;    
+            }
+            if(j$('[id$=model]').val() == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter Model</span></div>").insertAfter(j$('[id$=model]'));  
+                vinFlag = false;  
+            }
+        }
+        return vinFlag; 
+    }
+    
+    // function to validate ReturnTo field data
+    function validateReturnToVehicle(){
+        var returnToFlag = true;
+        var service = j$('[id$=serviceType]').val();
+        var ret = j$('[id$=returnTo]').val();
+        if((service == 'Swap' ||  service == 'Removal' || service == 'Removal Add-On Only') && ret == ''){
+            j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Return to mandatory for selected service.</span></div>").insertAfter(j$('[id$=returnTo]'));
+            j$('[id$=returnTo]').addClass('errorClass');
+            returnToFlag = false;
+        }
+        else{
+            returnToFlag = true;
+            j$('[id$=returnTo]').removeClass('errorClass');
+        }
+        return returnToFlag; 
+    }
+    
+    
+    // function to validate Sensors
+    function validateSensor(){
+        j$('[id$=Sensor1]').removeClass('errorClass');
+        var sensorFlag = true;
+        if(j$('[id$=sensor]').is(':checked') == true){
+            var sensor1 = j$('[id$=Sensor1]').val(); 
+            var sensor2 = j$('[id$=Sensor2]').val(); 
+            var sensor3 = j$('[id$=Sensor3]').val(); 
+            var sensor4 = j$('[id$=Sensor4]').val(); 
+            var sensor5 = j$('[id$=Sensor5]').val(); 
+            var sensor6 = j$('[id$=Sensor6]').val();
+            console.log('inside sensor1'+sensor1);   
+            if(sensor1 == '' && sensor2 == '' && sensor3 == '' && sensor4 == '' && sensor5 == '' && sensor6 == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Atleast one sensor is mandatory if sensor checkbox is selected</span></div>").insertAfter(j$('[id$=Sensor1]'));
+                j$('[id$=Sensor1]').addClass('errorClass');
+                sensorFlag = false;
+            }
+        }
+        return sensorFlag;
+    }
+    
+    // function to validate Other Model field value
+    function validateOtherModel(){
+        j$('[id$=otherModel]').removeClass('errorClass');
+        var otherModelFlag = true;
+        var model = j$('[id$=model]').val();
+        var otherModel = j$('[id$=otherModel]').val(); 
+        if(model == 'Other' && otherModel == '') {
+            j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Other Model is mandatory, When other is selected in Model</span></div>").insertAfter(j$('[id$=otherModel]'));
+            j$('[id$=otherModel]').addClass('errorClass');
+            otherModelFlag = false;          
+        }  
+        return otherModelFlag; 
+    }
+    
+    // function to validate Not a Vehicle scenario
+    function validateNotaVehicle(){
+        var navFlag = true;
+        if(j$('[id$=noEquipment]').is(':checked') == true && j$('[id$=noVIN]').is(':checked') == false){
+            if(j$('[id$=inputyear]').val() == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter Year</span></div>").insertAfter(j$('[id$=inputyear]'));
+                navFlag = false;    
+            }
+            if(j$('[id$=inputmake]').val() == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter Make</span></div>").insertAfter(j$('[id$=inputmake]'));
+                navFlag = false;    
+            }
+            if(j$('[id$=inputmodel]').val() == ''){
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter Model</span></div>").insertAfter(j$('[id$=inputmodel]'));  
+                navFlag = false;  
+            }
+        }
+        return navFlag;
+    }
+    
+    function closeVehForm(){
+        $('#myModal2').modal('hide'); 
+        $('body').removeClass('modal-open');
+        $('.modal-backdrop').remove();                                
+    }
+    
+    // function to validate VIN Number
+    
+    function validateVIN(){
+        j$('.locError').remove();
+        var tVIN = '';        
+        j$(".verifyVIN").each(function(){
+            tVIN = j$(this).val().trim();
+            j$(this).val(tVIN);
+            if(j$(this).val() !=''){
+                if(j$(this).val().length != 17){
+                    j$('[id$=year]').val("");
+                    j$('[id$=make]').val("");
+                    j$('[id$=model]').val("");
+                    j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>VIN Number must be 17 digits</span></div>").insertAfter(this);
+                }
+                else{
+                    populateVINDetails(j$(this).val());
+                }  
+            }
+            else{
+                j$("<div class='locError'><span class='errorText' style='color:#D52B1E'>Please Enter VIN Number</span></div>").insertAfter(this);
+                j$('[id$=year]').val("");
+                j$('[id$=make]').val("");
+                j$('[id$=model]').val("");
+            }
+        });
+    }
+    
+    // function to prevent noVIN & noEquipment selection at a time
+    function disableEquipment(){
+        if(j$('[id$=noVIN]').is(':checked') == true){
+            j$('[id$=noEquipment]').prop("disabled", true);   
+        }
+        else if(j$('[id$=noVIN]').is(':checked') == false){
+            j$('[id$=noEquipment]').removeAttr("disabled");   
+        }
+        if(j$('[id$=noEquipment]').is(':checked') == true){
+            j$('[id$=noVIN]').prop("disabled", true);  
+        }
+        else if(j$('[id$=noEquipment]').is(':checked') == false){
+            j$('[id$=noVIN]').removeAttr("disabled");
+            
+        }
+    }
+    
+    
+    function disableFields(){
+        j$('.locError').remove();  
+        if(j$('[id$=noVIN]').is(':checked') == false){
+            j$('[id$=year]').prop("disabled", true);
+            j$('[id$=make]').prop("disabled", true);
+            j$('[id$=model]').prop("disabled", true);
+            j$('[id$=vinNumber]').removeAttr("disabled");
+            j$('[id$=vinDecode]').removeAttr("disabled");
+        }
+        else{
+            j$('[id$=year]').removeAttr("disabled");
+            j$('[id$=make]').removeAttr("disabled");
+            j$('[id$=model]').removeAttr("disabled");
+            j$('[id$=vinNumber]').val("");
+            j$('[id$=vinNumber]').prop("disabled", true);
+            j$('[id$=vinDecode]').prop("disabled", true); 
+        }   
+    }
+    
+    function disableFieldsNoEqp(){
+        if(j$('[id$=noEquipment]').is(':checked') == false){
+            j$('[id$=vinNumber]').removeAttr("disabled");
+        }
+        else{
+            j$('[id$=vinNumber]').prop("disabled", true);
+        } 
+    }
+    
+    function disableSubmitAll(){
+        var count = 0;
+        
+        j$(".validateSelect").each(function(){
+            console.log(count);
+            if(j$(this).is(':checked') == true){
+                count = count+1;
+            }
+        });
+        if(count > 0){
+            j$('[id$=submitAll]').prop("disabled", true); 
+        }
+        else{
+            j$('[id$=submitAll]').prop("disabled", false);         
+        }
+    }
+    
+    function validateSubmitAllVehicles(){
+        var count = 0;
+        //count = {!selectedVehicleWrapperList.size};
+        j$('.noRowSelectedFlag').css('display','none');
+        j$('.errorMessage').empty();
+        j$(".validateSelect").each(function(){
+            count = 1;
+        });            
+        if(count > 0){
+            /*var leftBal = {!leftBalance}; // Commented by siva - begin
+            console.log('**leftBal:'+leftBal);
+            if(leftBal < 0){
+                $("#orderNegativeModal").modal();
+            }else{*/ // Commented by siva - end
+                preferredDateLocations();
+            //}
+        }
+        else{
+            j$('<p>There are no vehicles to submit.</p>').appendTo('.errorMessage');
+            j$('.noRowSelectedFlag').css('display','block');                
+        }
+    }
+    
+    function openPreferredDateModal(){
+        $("#preferredDateModal").modal({backdrop: "static"});
+        $("#preferredDateModal").modal();
+        setDatePicker();
+    }
+    
+    function openOrderSubmitModal(){
+        $("#orderSubmittedModal").modal();
+    }
+    
+    function validateduplicateSelectedVehicles(){
+        var count = 0;
+        j$('.noRowSelectedFlag').css('display','none');
+        j$('.errorMessage').empty();
+        var availablecount = {!availableServices};
+        if(availablecount > 0){
+            j$(".validateSelect").each(function(){
+                console.log(count);
+                if(j$(this).is(':checked') == true){
+                    count = count+1;
+                }
+            });
+            
+            if(count > 0){
+                duplicateSelectedVehicles();
+            }
+            else{
+                j$('<p>Please select at least one vehicle to duplicate/clone</p>').appendTo('.errorMessage');
+                j$('.noRowSelectedFlag').css('display','block');                
+            }
+        }
+        else{
+            $("#noPurchaseModalDuplicate").modal();
+        } 
+        
+    }
+    
+    function validatedeleteSelectedVehicles(){
+        var count = 0;
+        j$('.noRowSelectedFlag').css('display','none');
+        j$('.errorMessage').empty();
+        j$(".validateSelect").each(function(){
+            console.log(count);
+            if(j$(this).is(':checked') == true){
+                count = count+1;
+            }
+        });
+        
+        if(count > 0){
+            var confirmation = window.confirm("Are you sure you want to delete?");
+            if (confirmation == true){ 
+                deleteSelectedVehicles();
+            }
+        }
+        else{
+            j$('<p>Please select at least one vehicle to delete</p>').appendTo('.errorMessage');
+            j$('.noRowSelectedFlag').css('display','block');                
+        }
+        
+    }
+    
+    
+    function updateCountdown() {
+        j$('.checkNotes').attr("maxlength","255");
+        // 255 is the max message length
+        var remaining = 255 - j$('.checkNotes').val().length;
+        j$('.countdown').text(remaining + ' characters remaining.');            
+    }
+    function locationFocus(){
+        setTimeout(function(){$('.addlocationName').focus()}, 300);
+    }
+    
+    // function to clear error messages
+    function clearClasses(){
+        j$('.locError').remove();
+        j$(".validateRequired").each(function(){
+            j$(this).removeClass('errorClass');
+        });
+        j$('[id$=year]').prop("disabled", true);
+        j$('[id$=make]').prop("disabled", true);
+        j$('[id$=model]').prop("disabled", true); 
+        //var locflg = {!locationStateFlag};
+        //locflg = false;    
+        j$('.noRowSelectedFlag').css('display','none');
+        j$('.errorMessage').empty(); 
+        j$('.noVINDataFlag').css('display','none'); 
+    }
+    
+    function removerErrorClass(){
+        j$(".errorClass").each(function(){
+            j$(this).removeClass('errorClass');
+        });
+    }
+    
+    function resetLocationValue(){
+        $("#myModal3").modal({backdrop: "static"});
+        $("#myModal3").modal(); 
+        document.getElementById('{!$Component.mainform:addlocationName}').value = ''; 
+        document.getElementById('{!$Component.mainform:addaddress1}').value = ''; 
+        document.getElementById('{!$Component.mainform:addaddress2}').value = ''; 
+        document.getElementById('{!$Component.mainform:addcountry}').selectedIndex = 0; 
+        document.getElementById('{!$Component.mainform:addstate}').selectedIndex = 0;  
+        document.getElementById('{!$Component.mainform:addcity}').value = ''; 
+        document.getElementById('{!$Component.mainform:addzip}').value = ''; 
+        document.getElementById('{!$Component.mainform:addcontactName}').value = ''; 
+        document.getElementById('{!$Component.mainform:addemail}').value = '';  
+        document.getElementById('{!$Component.mainform:addphone}').value = ''; 
+        document.getElementById('{!$Component.mainform:addPhoneext}').value = '';   
+        document.getElementById('{!$Component.mainform:addalternateContactName}').value = '';  
+        document.getElementById('{!$Component.mainform:addalternateEmail}').value = ''; 
+        document.getElementById('{!$Component.mainform:addalternatePhone}').value = ''; 
+        document.getElementById('{!$Component.mainform:addalternatePhoneext}').value = ''; 
+        
+        
+        
+        
+    }
+    
+    function showLocationPanel(){
+        $('#collapse1').collapse();
+    } 
+    
+    function openNotes(notes){
+        console.log('notes:'+notes);
+        j$('.addNotes').empty(); 
+        j$('.addNotes').append(notes);
+        $("#noteModal").modal();
+    }        
+    
+    // Edit function  
+    function openService(){
+        jQuery.noConflict(); 
+        $("#myModal2").modal();
+        //disableFields();
+    }
+    
+    function highlightSelectedLocation(){
+        var classHighlight = 'highlightLocation';            
+        var thumbs = j$('.highlightLocations').click(function() {
+            thumbs.removeClass(classHighlight);
+            j$(this).addClass(classHighlight);
+        });
+    }
+    
+    // Year text box validation function
+    
+    function yearValidation(year,ev) {
+        var text = /^[0-9]+$/;
+        $('#yearError').html("");
+        if (year != 0) {
+            if ((year != "") && (!text.test(year))) {
+                $('#yearError').html("Please Enter Numeric Values Only");
+                return false;
+            }
+            if (year.length != 4) {
+                $('#yearError').html("Year is not proper. Please check");
+                return false;
+            }
+            var current_year=new Date().getFullYear();
+            if((year < 1981) || (year > current_year))
+            {
+                $('#yearError').html("Year should be in range 1981 to current year");
+                return false;
+            }
+            return true;
+        } 
+    }
+    
+    // function to get child accounts & enable auto suggest functionality
+    function fetchChildAccounts(){
+        var param1 = '{!$CurrentPage.parameters.id}';
+        console.log('Method Called'); 
+        sforce.connection.sessionId='{!GETSESSIONID()}';
+        Visualforce.remoting.Manager.invokeAction('{!$RemoteAction.SRSController.getAccount}',param1,function accountSearch(result, event){
+            if(event.type == 'exception'){
+                console.log('exception');
+                return;
+            }
+            else{
+                var records = result;
+                console.log(records);
+                var accSet= [];             
+                for(i = 0; i < records.length ; i++) {
+                    if(records[i].Name != null){ 
+                        console.log('Inside LOOP'+i);   
+                        var record1= records[i].Id;
+                        var record2=records[i].Name;
+                        if(accSet.indexOf(record2)==-1){
+                            accSet.push(record2);
+                        }
+                    } 
+                }
+                
+                j$("#txtAccountName").autocomplete({
+                    source:accSet
+                });
+            }
+            
+        });
+    }
+    
+    // function to set date time picker
+    function setDatePicker(){
+        j$('.datetimepicker1').mouseover(function() {
+            j$(this).css('cursor', 'pointer');
+        });
+        
+        j$('.datetimepicker2').mouseover(function() {
+            j$(this).css('cursor', 'pointer');
+        });
+        
+        
+        j$('.datetimepicker1').each(function(){
+            console.log('**inside date picker');
+            j$(this).datetimepicker({
+                useCurrent: false,
+                minDate: truncateDate(new Date())
+            });
+        });
+        j$('.datetimepicker2').each(function(){
+            console.log('**inside date picker');
+            j$(this).datetimepicker({
+                useCurrent: false,
+                minDate: truncateDate(new Date())
+            });
+        });
+    }
+    
+    
+    function truncateDate(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    }
+    
+    /*
+        Below function to validate serial number
+        function validateCode(serialNum){
+            var Exp = /((^[0-9]+[a-z]+)|(^[a-z]+[0-9]+))+[0-9a-z]+$/i;
+            
+            if(serialNum.length>0){
+                if(!serialNum.match(Exp))
+                    j$('#serialError').show();
+                else
+                    j$('#serialError').hide();
+            }
+        
+        
+        
+        
+        }
+        
+        */
+    
+    function updateMultiSelectPicklist(){
+        j$('.rightArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/rightArrow.png')}');
+        j$('.rightArrowIcon').removeAttr("title");
+        j$('.leftArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/leftArrow.png')}');
+        j$('.leftArrowIcon').removeAttr("title");
+        j$('.upArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/upArrow.png')}');
+        j$('.upArrowIcon').removeAttr("title");
+        j$('.downArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/downArrow.png')}');
+        j$('.downArrowIcon').removeAttr("title");
+    }
+    
+    function handleCloseModal(){
+        $('#myModal2').on('hidden.bs.modal', function () {
+            clearVehForm();
+        });
+    }
+    function enableEditModel(){
+        $("#myModal2").addClass("editMode");  
+    }
+    function validateServices(){
+        var count = {!availableServices};
+        console.log('count:'+count);
+        if(count > 0){
+            jQuery.noConflict(); 
+            $("#myModal2").modal({backdrop: "static"});
+            $("#myModal2").modal();
+            $("#myModal2").removeClass("editMode");
+            setLocationState();
+            //$("#myModal2").on('shown.bs.modal', function () {
+            //   balanceLeft();
+            //});
+            updateMultiSelectPicklist();
+            displayOptionalFields();
+            editdisplayOptionalFields();
+            updateCountdown();
+            j$('.checkNotes').change(updateCountdown);
+            j$('.checkNotes').keyup(updateCountdown);
+            clearClasses();
+            fetchAvailableAccessories();
+        }else{
+            $("#noPurchaseModal").modal();
+        }
+    }
+    
+    function setLocationModal(){
+        $("#myModal").on('shown.bs.modal', function () {
+            $("#modalId").scrollTop(0);
+        });
+    }
+    
+    function userGuide(){
+        var X = {!selectedVehicleWrapperList.size};
+        var Y = {!submittedVehicleWrapperList.size};
+        var Xs = {!resetNewSearchFlag};
+        var Ys = {!resetsubmittedSearchFlag};
+        console.log(Xs);
+        console.log(Ys);
+        
+        if(X == 0 && Y == 0 && Xs == false && Ys == false)
+        {
+            $("#myModal4").modal({backdrop: "static"});
+            $("#myModal4").modal();
+        }
+    }
+    function userGuide1(){
+        $("#myModal4").modal({backdrop: "static"});
+        $("#myModal4").modal();
+    }
+
+    function captureData(){
+        
+        var dpValue = document.getElementsByClassName("dp1");
+        //document.getElementById('{!$component.container}').value = '';
+        //alert(document.getElementById('{!$component.container}'));
+        $(":input[id$='container']").val('');
+        
+        if(dpValue.length>0){
+            for (i = 0; i < dpValue.length; i++) { 
+                var d1='no';
+                d1 = document.getElementsByClassName('dp1')[i].value;
+                
+                var d2= 'no';
+                var rId;
+                rId = document.getElementsByClassName('nameC')[i].innerText;
+                console.log('rId>>>'+rId);
+                if(document.getElementsByClassName('dp2')[i].value.length >1){
+                    d2 = document.getElementsByClassName('dp2')[i].value;
+                }
+                var value = $(":input[id$='container']").val();
+                value = value +d1+';'+d2+';'+rId+'>>';
+                $(":input[id$='container']").val(value);
+                //document.getElementById('j_id0:mainform:j_id38:j_id39:j_id79:j_id80:j_id93:j_id94:j_id97:j_id98:j_id101:j_id102:container').value = document.getElementById('j_id0:mainform:j_id38:j_id39:j_id79:j_id80:j_id93:j_id94:j_id97:j_id98:j_id101:j_id102:container').value+d1+';'+d2+';'+rId+'>>';
+                
+                
+            }
+            
+        }
+        
+        submitAllVehicles();
+    }
+    //
+    function disableSearchButtons(){
+        enableOrDisableSearchNew();
+        enableOrDisableSearchSubmitted();
+    }
+    
+    function enableOrDisableSearchNew(){
+        if (j$('[id$=newSearchInput]').val() != undefined && j$('[id$=newSearchInput]').val().length <=1) {
+            j$('[id$=newSearchButton]').prop("disabled", true);
+        } else {
+            j$('[id$=newSearchButton]').prop("disabled", false);
+        }
+    }
+    
+    function enableOrDisableSearchSubmitted(){
+        if (j$('[id$=submittedSearchInput]').val() != undefined && j$('[id$=submittedSearchInput]').val().length <=1) {
+            j$('[id$=submittedSearchButton]').prop("disabled", true);
+        } else {
+            j$('[id$=submittedSearchButton]').prop("disabled", false);
+        }
+    }
+    function getValues()
+    {
+        console.log('{!addLocationWrapper}');
+        getvalue();
+    }
+    function updateFlag()
+    {
+        updateFlagValue();
+    }
+    </script> 
+</head>    
+<c:importvisualstrap />
+<apex:form id="mainform" >
+    
+    <div class="container-fluid" >
+        <div style="padding-top:75px;">
+            <!-- <div class="hidden-md hidden-lg" style="padding-top:25px;"></div> -->
+            <!-- to fix the header space issue -->
+        </div>
+        <div id="header" class="container" style="clear:both;float:left;">
+            <nav class="navbar navbar-default navbar-fixed-top" style="display:block;">
+                <div class="navbar-inner navbar-content-center">
+                    <c:visualstrapblock >
+                        <c:row >
+                            <c:column type="col-md-9 col-sm-8">
+                                <c:column type="col-md-4">
+                                    <!--  <apex:image url="{!URLFOR($Resource.IODS,'NetworkFleet-320dpi.png')}"/> -->  
+                                    <apex:image url="{!URLFOR($Resource.SRS,'SRS/Networkfleet-SRS-logo.png')}" height="70"/>
+                                </c:column>
+                                <c:column type="col-md-8">
+                                    <!--  <div>
+<span style="font-size:18.0pt;font-family:Calibri"><b>&nbsp;&nbsp;Service Request Site (SRS)</b></span>
+</div> -->
+                                </c:column>
+                            </c:column>
+                            <c:column type="col-md-3 col-sm-4">
+                                <div>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=""  onclick="userGuide1();"><b>Need Help Getting Started?</b></a>
+                                </div>
+                            </c:column>
+                        </c:row>
+                    </c:visualstrapblock> 
+                </div>
+            </nav>
+        </div>
+        <c:visualstrapblock >
+            <br/>
+            <c:row >
+                <c:column type="col-md-3">
+                    <!-- <a href="" data-toggle="modal" data-target="#myModal" onclick="initPageBlockTableEnhancerADV();setLocationModal();"><b>Select/Add new location</b></a><br/><br/> -->
+                    <!--   <c:column type="col-md-12"> -->
+                    <div>
+                        <span><b>Order:&nbsp;&nbsp;&nbsp;&nbsp;</b></span>
+                        {!orderRecord.GP_ERP_Order_ID__c}
+                    </div>
+                    <!--        </c:column>--> 
+                </c:column>
+                <c:column type="col-md-9">
+                    <c:row >
+                        <c:column type="col-md-6">
+                            
+                        </c:column>
+                        <c:column type="col-md-6" rendered="{!IF(displayChildAccount,true,false)}">
+                            <c:column type="col-md-2">
+                                <div class="setLeft">
+                                    <span><b>Client:</b></span>
+                                </div>
+                            </c:column>
+                            <c:column type="col-md-9" >
+                                <div class="form-group">          
+                                    <apex:inputHidden id="txtAccountName" value="{!childAccountName}"/>
+                                    <input type="text" class="form-control" id="txtAccountName" value="{!childAccountName}" onblur="document.getElementById('{!$Component.txtAccountName}').value = this.value;" onmouseenter="fetchChildAccounts();" onfocusout="saveChildAccount();"/>
+                                    
+                                </div>
+                            </c:column>
+                        </c:column>
+                    </c:row>
+                </c:column>
+            </c:row>
+            <c:row >
+                <c:column type="col-md-3">
+                    <apex:pageBlock id="quantityTable">
+                        <apex:pageBlockTable value="{!balanceQuantityList}" var="devQuantity" styleClass="table table-bordered vehicleTable" style="font-size:12px;">
+                            <apex:column headerValue="Service Type" style="{!IF(devQuantity.isAddon == TRUE, 'padding-left:30px;', 'padding-left:10px;font-size:12px')}"> 
+                                <apex:outputText rendered="{!devQuantity.isAddon}" value="Accessory: " style="font-size:12px; font-weight:bold;"/>
+                                <apex:outputText value="{!devQuantity.key}" style="{!IF(devQuantity.isAddon == FALSE, 'font-weight:bold', 'font-size:12px')}"/>
+                                
+                            </apex:column>
+                            <apex:column headerValue="Balance" style="width: 70px; text-align:center;">
+                                {!devQuantity.GPBalance} / {!devQuantity.GPQuantity}
+                            </apex:column>
+                            <apex:facet name="caption">
+                                <apex:outputText value="Order Purchase and Balance Summary:" style="font-weight:bold"/>
+                            </apex:facet>
+                        </apex:pageBlockTable>
+                    </apex:pageBlock>
+                    <apex:outputPanel id="allLocations">
+                        <div class="panel-group" styleClass="rowHeaderClass" style="margin-left: 2px;">
+                            <div class="panel panel-default">
+                                <div class="panel-heading" styleClass="rowHeaderClass" style="background: #F0F8F8;color: #747676;">
+                                    <span class="panel-title" styleClass="rowHeaderClass">
+                                        <a data-toggle="collapse" href="#collapse1" onclick="fetchlocationVehicles();"><span style ="font-family: Helvetica Neue ,Helvetica,Arial,sans-serif"><b><div style="font-size: 14px;">Install Locations</div></b></span></a>
+                                    </span>
+                                </div>
+                                <div id="collapse1" class="panel-collapse collapse">
+                                    <ul class="list-group">
+                                        <apex:repeat value="{!locationList}" var="location">
+                                            <li class="list-group-item">               
+                                                <apex:commandLink styleClass="highlightLocations" onclick="highlightSelectedLocation();selectedLocationVal('{!location.Id}');" value="{!location.Name}" status="submit" reRender="none"></apex:commandLink>
+                                                <br/>
+                                                <span>
+                                                    {!location.Garage_Address1__c},{!location.Garage_Address2__c},{!location.Garage_City__c}<br/>
+                                                    {!location.Garage_State__c},{!location.Garage_Country__c}-{!location.Garage_Zip__c}<br/>
+                                                </span>
+                                                <span style="color: #337ab7;">
+                                                    <!-- {!locVehicleCountMap[location.Id]} Vehicles-->
+                                                    {!locationRecCountMap [location.Id]} Vehicles
+                                                </span>
+                                            </li>                   
+                                        </apex:repeat>
+                                    </ul>
+                                </div>                              
+                            </div>
+                        </div>
+                    </apex:outputPanel>
+                </c:column>
+                <c:column type="col-md-9">
+                    
+                    <c:row >
+                        <c:column type="col-md-12">
+                            <div style="margin-bottom:10px;">
+                                <button type="button" onclick ="validateServices();" class="scheduleButton" data-yourparameter="sampledata" data-backdrop="static">
+                                    Schedule New Service
+                                </button>&nbsp;&nbsp;&nbsp;
+                                <apex:inputText value="{!listValue}"  styleclass="hiddenF"  id="container"    style="display: none;"/>
+                                <apex:commandButton id="submitAll" value="Submit All Vehicles" style="margin-top:10px;" styleClass="scheduleButton" onclick="validateSubmitAllVehicles();" reRender="none" accessKey="u">
+                                </apex:commandButton>
+                            </div>
+                        </c:column>
+                    </c:row>
+                    <br/>
+                    <c:row >
+                        <c:column type="col-md-12">
+                            <apex:outputPanel id="instructions">
+                                <table border="0" class="rounded-list">
+                                    <tr>
+                                        <td>
+                                            <ol>
+                                                <li><p>Click "Schedule New Service" to add vehicle details. </p></li>
+                                                <li><p>Make any necessary changes by clicking the Edit icon.</p></li>
+                                                <li><p>Once all vehicles have been added click on "Submit All Vehicles" to submit for scheduling.</p></li>
+                                            </ol>
+                                            <div style="padding-bottom:5px;padding-top:10px">
+                                                <span style="color: #747676;">&nbsp;&nbsp;&nbsp;&nbsp;Once submitted, an installation coordinator will contact you to confirm time, date &amp; location</span>    <br/>       
+                                                
+                                                <span style="color: #747676;"><b>&nbsp;&nbsp;&nbsp;&nbsp;NOTE:</b><br/>&nbsp;&nbsp;&nbsp;&nbsp;1. If you are having trouble editing, please delete the vehicle and resubmit. <br/>&nbsp;&nbsp;&nbsp;&nbsp;2. To find vehicles, enter value in Search box and click Search button. Pressing Enter will not display results.</span>
+                                                
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                            </apex:outputPanel>
+                        </c:column>
+                    </c:row>
+                    
+                    <!-- Start: Pagination Style -->
+                    <style>
+                        .paginationcont{/*width:550px;*/border:0px solid #efefef;overflow:hidden;color:#333;font-size:14px;font-family:Helvetica,Arial,sans-serif;padding:3px;}
+                        .paginationcont1{width:419px;border:1px solid #efefef;overflow:hidden;color:#333;font-size:14px;font-family:Helvetica,Arial,sans-serif;padding:3px;margin:0 auto;}
+                        label{color:#333;font-size:11px;font-family:Helvetica,Arial,sans-serif; padding-right:2px;}
+                        .nentry{width:160px;float:left; }
+                        select{/*width:55px;*/border:1px solid #ccc;padding:2px;margin:0 6px;}
+                        .pgcont{text-align:center; width:100%}
+                        .pgcont ul{margin:0;padding:0;list-style:none}
+                        .pgcont li{display:inline-block;padding-right:1px;text-align:center;}
+                        .pgstatus {float:left;}
+                        
+                        .pgcont span{display:block;border-left:1px solid #efefef;}
+                        
+                        i.arrow {
+                            border: solid #333;
+                            border-width: 0 3px 3px 0;
+                            display: inline-block;
+                            padding: 3px;
+                            color:#333;font-size:14px;font-family:Helvetica,Arial,sans-serif;
+                        }
+                        
+                        .right {
+                            transform: rotate(-45deg);
+                            -webkit-transform: rotate(-45deg);
+                        }
+                        
+                        .left {
+                            transform: rotate(135deg);
+                            -webkit-transform: rotate(135deg);
+                        }
+                        
+                        .btnpdingl{padding-left:8px!important;padding-right:4px!important;}
+                        .btnpdingr{padding-left:4px!important;;padding-right:8px!important;}
+                        
+                        .pgcont a{background:#dddddd;/*padding:8px 6px;*/border:1px solid #b9b9b9; text-decoration:none;display:block;width:35px;text-align:center;transition:0.3s all}
+                        .pgcont a:hover{background:#0070D2;color:#fff;border:1px solid #0070D2; }
+                        .pgcont a:hover i.arrow{border: solid #fff;border-width: 0 3px 3px 0;}
+                        .pgcont input[type=text]{padding:2px;width:30px;height:20px;text-align:center;border:1px solid #ccc;}
+                        
+                        .pgcont button{padding:8px 6px;width:36px;cursor:pointer;transition:0.3s all;border:1px solid #b9b9b9;background:#dddddd;}
+                        .pgcont button:hover{background:#0070D2;color:#fff;border:1px solid #0070D2;padding:8px 6px;}
+                        .pgcont button:hover i.arrow{border:0 solid #fff;border-width: 0 3px 3px 0;}
+                    </style>
+                    <!-- End: Pagination Style -->
+                    
+                    <!--  <apex:actionFunction name="refreshNewPageSize" action="{!refreshNewPageSize}" status="fetchNewStatus" reRender=", " /> -->
+                    <apex:outputPanel id="newPanel">
+                        <div class="strike">
+                            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NEW({!noOfNewRecords})&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        </div>
+                    </apex:outputPanel>
+                    <apex:pageMessages />
+                    <apex:outputPanel id="errorPanel">
+                        <c:alert style="display:none;" styleclass="noRowSelectedFlag errorMessage" type="danger">
+                        </c:alert>
+                    </apex:outputPanel>
+                    <div class="btnSet">
+                        <!-- <apex:commandButton id="submitAll" value="Submit All Vehicles" styleClass="scheduleButton" onclick="validateSubmitAllVehicles();" reRender="none"> -->
+                        
+                        <apex:actionStatus id="submit" >
+                            <apex:facet name="start">
+                                <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.25; z-index: 1000; background-color: black;">
+                                    &nbsp;
+                                </div>
+                                <div style="position: fixed; left: 0; top: 0; bottom: 0; right: 0; z-index: 1001; margin: 15% 50%">
+                                    <div style="display: inline-block; padding: 2px; background-color: #fff; width: 125px;">
+                                        <img src="/img/loading.gif" style="float: left; margin: 8px;" />
+                                        <span style="display: inline-block; padding: 10px 0px;">Please Wait...</span>
+                                    </div>
+                                </div>
+                            </apex:facet>
+                        </apex:actionStatus>
+                        <!--</apex:commandButton> -->
+                        
+                        <apex:commandButton id="duplicate" value="Duplicate Vehicle" styleClass="mybtn" disabled="{!!IF(selectedVehicleWrapperList.size > 0,true,false)}" onclick="validateduplicateSelectedVehicles();" reRender="none"/>&nbsp;&nbsp;&nbsp;
+                        <apex:commandButton id="delete" value="Delete Vehicle" styleClass="mybtn" disabled="{!!IF(selectedVehicleWrapperList.size > 0,true,false)}" onclick="validatedeleteSelectedVehicles(); return false;"/>&nbsp;&nbsp;&nbsp;
+                        <a id="mylink" style="color:rgb(45, 136, 224);" href="{!URLFOR($Action.Document.Download, documentURL)}" download ="Vehicle_Template">Download template<apex:outputPanel styleClass="glyphicon glyphicon-download"></apex:outputPanel></a> 
+                        &nbsp;&nbsp;&nbsp;     
+                        <apex:commandLink style="color:rgb(45, 136, 224);" value="Upload from file" action="{!importCSVFile}">
+                            <apex:outputPanel styleClass="glyphicon glyphicon-upload"></apex:outputPanel>
+                        </apex:commandLink>
+                    </div>
+                    <apex:outputPanel id="SearchFilterPanelNew" rendered="{!IF(OR(selectedVehicleWrapperList.size > 0, searchVariableNewTable <>'', resetLocationFilterOnNewFlag),true,false)}" style="width:100%;" layout="block">
+                        <apex:outputPanel style="float:right; padding-bottom:10px; " layout="block">
+                            <!--  <span class="glyphicon glyphicon-search" style="float:left;"></span> -->
+                            <apex:input id="newSearchInput" type="text" value="{!searchVariableNewTable}" html-placeholder="Search Vehicle Information" size="30" styleClass="form-control input-sm" style="width:300px; float:left;" onKeyUp="enableOrDisableSearchNew(this);" onChange="enableOrDisableSearchNew(this);"/>
+                            &nbsp; &nbsp;
+                            <apex:commandButton action="{!searchNewTableFn}" value="Search" styleClass="btn btn-primary btn-sm" id="newSearchButton">  </apex:commandButton>
+                        </apex:outputPanel>
+                        <apex:outputPanel style="float:left; padding-bottom:10px;" layout="block">
+                            <apex:outputText rendered="{!IF(OR(resetLocationFilterOnNewFlag,resetNewSearchFlag), true, false)}"><small> <b>Filtered by {!IF(searchVariableNewTable<>'','Search Criteria: '+searchVariableNewTable,'Location: '+filterLocationName)} </b>-- <b>{!noOfNewFilteredRecords}</b> out of <b>{!noOfNewRecords}</b> row(s) matched.</small>&nbsp;&nbsp;</apex:outputText>
+                            <apex:commandButton value="Reset Filter" rendered="{!IF(OR(resetLocationFilterOnNewFlag,resetNewSearchFlag), true, false)}" action="{!resetNewTableFn}" styleClass="btn btn-primary btn-sm"/>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                    <div style="clear:both;">
+                        
+                        <script>
+                            
+                            function cvCheckAllOrNone(allOrNoneCheckbox) {
+                                
+                                // Find parent table
+                                var container = allOrNoneCheckbox;
+                                while (container.tagName != "TABLE") {
+                                    container = container.parentNode;
+                                }
+                                
+                                // Switch all checkboxes
+                                var inputs = container.getElementsByTagName("input");
+                                var checked = allOrNoneCheckbox.checked;
+                                for (var i = 0; i < inputs.length; i++) { 
+                                    var input = inputs.item(i);
+                                    
+                                    if (input.type == "checkbox" && !input.disabled) {
+                                        if (input != allOrNoneCheckbox) {
+                                            input.checked = checked;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                        </script>
+                        
+                         
+                        <apex:outputPanel id="vehList" rendered="{!IF(OR(selectedVehicleWrapperList.size > 0, searchVariableNewTable <>'', resetLocationFilterOnNewFlag),true,false)}">
+                            
+                            <apex:pageBlock id="rerenderNew">  
+                                        
+                                <apex:pageBlockTable styleClass="table table-bordered vehicleTable" value="{!selectedVehicleWrapperList}" var="veh" id="vehTable" rendered="{!IF(OR(selectedVehicleWrapperList.size > 0, searchVariableNewTable <>''),true,false)}">
+                                    <!--<apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="">-->
+                                    
+                                    <apex:column >
+                                        <apex:facet name="header">
+                                            <apex:inputCheckbox id="chbox" onclick="cvCheckAllOrNone(this);"  styleClass="chkClass" />
+                                        </apex:facet>
+                                        
+                                        <apex:inputCheckbox value="{!veh.isVehSelected}" styleClass="validateSelect" onclick="disableSubmitAll();"/>
+                                    </apex:column>
+                                    
+                                    <!--</apex:column>-->
+                                    <apex:column headerValue="Edit" styleClass="rowHeaderClass" headerClass="rowHeaderClass">
+                                        <span onclick="editRecord('{!veh.selectedVehicle.Id}');" class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                                    </apex:column>
+                                    <apex:column headerValue="Location" styleClass="rowHeaderClass" headerClass="rowHeaderClass"> <!--   rendered="{!IF(selectedLocationVehFlag,true,false)}"> -->
+                                        <apex:outputField value="{!veh.selectedVehicle.location__r.Name}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Service Type">
+                                        <!-- <apex:outputField value="{!veh.selectedVehicle.Installation_Type__c}" /> -->
+                                        <apex:outputText value="{!veh.serviceTypeLabel}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="VIN">
+                                        <apex:outputField value="{!veh.selectedVehicle.VIN__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Vehicle Label">
+                                        <apex:outputField value="{!veh.selectedVehicle.Vehicle_Label__c}" />
+                                    </apex:column>          
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Year">
+                                        <apex:outputField value="{!veh.selectedVehicle.Year__c}" />
+                                    </apex:column>  
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Make">
+                                        <apex:outputField value="{!veh.selectedVehicle.Make__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Model">
+                                        <apex:outputField value="{!veh.selectedVehicle.Model__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Old VIN">
+                                        <apex:outputField value="{!veh.selectedVehicle.Old_Vin__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Lic. Plate">
+                                        <apex:outputField value="{!veh.selectedVehicle.License_Plate__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Lic. State">
+                                        <apex:outputField value="{!veh.selectedVehicle.License_State__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Color">
+                                        <apex:outputField value="{!veh.selectedVehicle.Color__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Fuel Type">
+                                        <apex:outputField value="{!veh.selectedVehicle.Fuel_Type__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Device">
+                                        <apex:outputField value="{!veh.selectedVehicle.Device_Type__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Serial">
+                                        <apex:outputField value="{!veh.selectedVehicle.Device_Serial_Number__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Old Serial">
+                                        <apex:outputField value="{!veh.selectedVehicle.Device_Serial_Number_Old__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Harness">
+                                        <apex:outputField value="{!veh.selectedVehicle.Vehicle_Harness_Category__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Accessories">
+                                        <!--<span onclick="openNotes('{!veh.accessories}');" class="glyphicon glyphicon-open-file" aria-hidden="true"/>-->
+                                        <div style="text-overflow:ellipsis;max-width: 10vw;overflow: hidden;" title="{!veh.accessories}">{!veh.accessories}</div>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Device Return To">
+                                        <apex:outputField value="{!veh.selectedVehicle.Device_Returned__c}" />
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Notes">
+                                        <span onclick="openNotes('{!veh.selectedVehicle.Activity_Notes__c}');" class="glyphicon glyphicon-open-file" aria-hidden="true">                  
+                                        </span>          
+                                    </apex:column>
+                                    
+                                </apex:pageBlockTable>
+                            </apex:pageBlock>
+                            
+
+                            <div class="paginationcont">
+                                <!--<div class="nentry">
+                                    <label>Show </label>
+                                    <apex:selectList value="{!sizeOfNewRecords}" multiselect="false" size="1" onchange="refreshNewPageSize();">
+                                        <apex:selectOptions value="{!paginationSizeOptionsForNew}"/>
+                                    </apex:selectList>
+                                    <label>Entries</label>
+                                </div>-->
+                                
+                                <div class="pgcont">
+                                    <ul>
+                                        <li>
+                                            <apex:commandButton status="fetchNewStatus" value="First" action="{!newFirst}" disabled="{!!setSRSNew.hasPrevious}" style="width:65px;" title="First Page" reRender="vehList" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <li>
+                                            <apex:commandButton status="fetchNewStatus" value="Previous" action="{!newPrevious}" disabled="{!!setSRSNew.hasPrevious}" style="width:65px;" title="Previous Page" reRender="vehList" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <!--  
+                                        <li>Page</li>
+                                          <li>
+                                            <apex:inputText value="{!setSRSNew.pageNumber}" size="1" onchange="refreshNewPageSize()"/>
+                                        </li>
+                                        <li>of {!noOfPageForNew}</li>
+                                        -->
+                                        <li>
+                                            &nbsp;&nbsp;&nbsp;Page&nbsp;&nbsp;<b>{!setSRSNew.pageNumber}</b>&nbsp;&nbsp;of&nbsp;&nbsp;<b>{!noOfPageForNew}</b>&nbsp;&nbsp;&nbsp;
+                                        </li>
+                                        <li>
+                                            <apex:commandButton status="fetchNewStatus" value="Next" action="{!newNext}" disabled="{!!setSRSNew.hasNext}" style="width:65px;" title="Next Page" reRender="vehList" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <li>
+                                            <apex:commandButton status="fetchNewStatus" value="Last" action="{!newLast}" disabled="{!!setSRSNew.hasNext}" style="width:65px;" title="Last Page" reRender="vehList" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <li>
+                                            <apex:outputPanel layout="block" style="width:25px;">                      
+                                                <apex:actionStatus id="fetchNewStatus" >
+                                                    <apex:facet name="start" >
+                                                        <img src="/img/loading.gif" />                    
+                                                    </apex:facet>
+                                                </apex:actionStatus>
+                                            </apex:outputPanel>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                          
+                        </apex:outputPanel> 
+                    </div>
+
+                    <!--  <apex:actionFunction name="refreshSubmittedPageSize" action="{!refreshSubmittedPageSize}" status="fetchSubmittedStatus" reRender="rerenderSubmitted" /> -->
+                    <apex:outputPanel id="submittedPanel">    
+                        <div class="strike">
+                            <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SUBMITTED({!noOfSubmittedRecords})&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </span>
+                        </div>
+                    </apex:outputPanel>
+                    <br/>
+                    
+                    <apex:outputPanel id="SearchFilterPanelSubmitted" rendered="{!IF(OR(submittedVehicleWrapperList.size > 0, searchVariableSubmittedTable<>'', resetLocationFilterOnSubmittedFlag),true,false)}" style="width:100%;" layout="block">
+                        <!--  <apex:outputPanel style="float:left; padding-bottom:10px;" layout="block">
+                            <apex:outputText rendered="{!resetSubmittedSearchFlag}"><b>Filter applied:</b> {!IF(searchVariableSubmittedTable<>'',searchVariableSubmittedTable,)}  -- <b>{!noOfSubmittedFilteredRecords}</b> out of <b>{!noOfSubmittedRecords}</b> Row(s) found.&nbsp;&nbsp;&nbsp;</apex:outputText>
+                            <apex:commandButton value="Reset Filter" rendered="{!resetSubmittedSearchFlag}" action="{!resetSubmittedTableFn}" styleClass="btn btn-primary btn-sm"/>
+                        </apex:outputPanel> -->
+                        <apex:outputPanel style="float:right; padding-bottom:10px; " layout="block">
+                            <!--  <span class="glyphicon glyphicon-search" style="float:left;"></span> -->
+                            <apex:input id="submittedSearchInput" type="text" value="{!searchVariableSubmittedTable}" html-placeholder="Search Vehicle Information" size="30" styleClass="form-control input-sm" style="width:300px; float:left;" onKeyUp="enableOrDisableSearchSubmitted();" onChange="enableOrDisableSearchSubmitted();"/>
+                            &nbsp; &nbsp;
+                            <apex:commandButton id="submittedSearchButton" action="{!searchSubmittedTableFn}" value="Search"  styleClass="btn btn-primary btn-sm"></apex:commandButton>
+                        </apex:outputPanel>
+                        <apex:outputPanel style="float:left; padding-bottom:10px;" layout="block">
+                            <apex:outputText rendered="{!IF(OR(resetLocationFilterOnSubmittedFlag,resetSubmittedSearchFlag), true, false)}"><small> <b>Filtered by {!IF(searchVariableSubmittedTable<>'','search criteria: '+searchVariableSubmittedTable,'Location '+filterLocationName)} </b>-- <b>{!noOfSubmittedFilteredRecords}</b> out of <b>{!noOfSubmittedRecords}</b> row(s) matched.</small>&nbsp;&nbsp;</apex:outputText>
+                            <apex:commandButton rendered="{!IF(OR(resetLocationFilterOnSubmittedFlag,resetSubmittedSearchFlag), true, false)}" value="Reset Filter"  action="{!resetSubmittedTableFn}" styleClass="btn btn-primary btn-sm"/>
+                        </apex:outputPanel>
+                    </apex:outputPanel>
+                    <div style="clear:both;">
+                        <!-- <apex:outputPanel rendered="{!IF(OR(submittedVehicleWrapperList.size > 0, searchVariableSubmittedTable<>''),true,false)}" id="rerenderSubmitted"> <!-- ####$$$$ -->
+                        <apex:outputPanel rendered="{!IF(OR(submittedVehicleWrapperList.size > 0, searchVariableSubmittedTable<>'', resetLocationFilterOnSubmittedFlag),true,false)}" id="rerenderSubmitted">
+                            
+                            <apex:pageBlock >
+                                <apex:pageBlockTable styleClass="table table-bordered vehicleTable" value="{!submittedVehicleWrapperList}" var="subveh" id="subVehTable">             
+                                    <apex:column headerValue="Location" styleClass="rowHeaderClass" headerClass="rowHeaderClass"> <!--  rendered="{!IF(selectedLocationVehFlag,true,false)}"> -->
+                                        <apex:outputField value="{!subveh.selectedVehicle.location__r.Name}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Service Type">
+                                        <!-- <apex:outputField value="{!subveh.selectedVehicle.Installation_Type__c}"/> -->
+                                        <apex:outputText value="{!subveh.serviceTypeLabel}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="VIN">
+                                        <apex:outputField value="{!subveh.selectedVehicle.VIN__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Vehicle Label">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Vehicle_Label__c}"/>
+                                    </apex:column>          
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Year">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Year__c}"/>
+                                    </apex:column>  
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Make">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Make__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Model">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Model__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Old VIN">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Old_Vin__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Lic. Plate">
+                                        <apex:outputField value="{!subveh.selectedVehicle.License_Plate__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Lic. State">
+                                        <apex:outputField value="{!subveh.selectedVehicle.License_State__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Color">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Color__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Fuel Type">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Fuel_Type__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Device">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Device_Type__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Serial">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Device_Serial_Number__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Old Serial">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Device_Serial_Number_Old__c }"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Harness">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Vehicle_Harness_Category__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Accessories">
+                                        <div style="text-overflow:ellipsis;max-width: 10vw;overflow: hidden;" title="{!subveh.accessories}">{!subveh.accessories}</div>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Device Return To">
+                                        <apex:outputField value="{!subveh.selectedVehicle.Device_Returned__c}"/>
+                                    </apex:column>
+                                    <apex:column styleClass="rowHeaderClass" headerClass="rowHeaderClass" headerValue="Notes">
+                                        <span onclick="openNotes('{!subveh.selectedVehicle.Activity_Notes__c}');" class="glyphicon glyphicon-open-file" aria-hidden="true">                  
+                                        </span>          
+                                    </apex:column>
+                                </apex:pageBlockTable>
+                            </apex:pageBlock>
+                            <div class="paginationcont">
+                                <!--<div class="nentry">
+                                    <label>Show </label>
+                                    <apex:selectList value="{!sizeOfSubmittedRecords}" multiselect="false" size="1" onchange="refreshSubmittedPageSize();">
+                                        <apex:selectOptions value="{!paginationSizeOptionsForSubmitted}"/>
+                                    </apex:selectList>
+                                  
+                                    <label>Entries</label>
+                                </div>-->
+                                <div class="pgcont">
+                                    <ul>
+                                        <li>
+                                            <apex:commandButton status="fetchSubmittedStatus" value="First" action="{!submittedFirst}" disabled="{!!setSRSSubmitted.hasPrevious}" title="First Page" reRender="rerenderSubmitted" style="width:65px;" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <li>
+                                            <apex:commandButton status="fetchSubmittedStatus" value="Previous" action="{!submittedPrevious}" disabled="{!!setSRSSubmitted.hasPrevious}" title="Previous Page" reRender="rerenderSubmitted" style="width:65px;" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <!--  <li>Page</li>
+                                        <li> 
+                                            <apex:inputText value="{!setSRSSubmitted.pageNumber}" size="1" onchange="refreshSubmittedPageSize()"/>
+                                        </li>
+                                        <li>of {!noOfPageForSubmitted}</li>
+                                        -->
+                                        <li>
+                                            &nbsp;&nbsp;&nbsp;Page&nbsp;&nbsp;<b>{!setSRSSubmitted.pageNumber}</b>&nbsp;&nbsp;of&nbsp;&nbsp;<b>{!noOfPageForSubmitted}</b>&nbsp;&nbsp;&nbsp;
+                                        </li>
+                                        <li>
+                                            <apex:commandButton status="fetchSubmittedStatus" value="Next" action="{!submittedNext}" disabled="{!!setSRSSubmitted.hasNext}" title="Next Page" reRender="rerenderSubmitted" style="width:65px;" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <li>
+                                            <apex:commandButton status="fetchSubmittedStatus" value="Last" action="{!submittedLast}" disabled="{!!setSRSSubmitted.hasNext}" title="Last Page" reRender="rerenderSubmitted" style="width:65px;" styleClass="btn btn-primary btn-sm"/> 
+                                        </li>
+                                        <li>
+                                            <apex:outputPanel layout="block" style="width:25px;">                      
+                                                <apex:actionStatus id="fetchSubmittedStatus" >
+                                                    <apex:facet name="start" >
+                                                        <img src="/img/loading.gif" />                    
+                                                    </apex:facet>
+                                                </apex:actionStatus>
+                                            </apex:outputPanel>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </apex:outputPanel>
+                    </div>
+                </c:column>
+            </c:row>
+        </c:visualstrapblock>
+    </div>
+    <div style="padding-bottom:70px;">
+        <!-- to fix the footer space issue -->
+    </div>
+    <div id="footer" class="container">
+        <nav class="navbar navbar-default navbar-fixed-bottom">
+            <div class="navbar-inner navbar-content-center" style="width:200px; float:left">           
+                <apex:image url="{!URLFOR($Resource.TOaImages, 'TOaImages/logo.png')}" width="148" height="55"/>
+            </div>
+            <div class="hidden-xs hidden-sm hidden-md" style="margin-top:10px;"></div>
+            <apex:outputPanel layout="block" styleClass="text-justify" style="height:50px;"><apex:outputText style="font-size:12px; color:#999999; " value="** For Desktop Users, this site is best viewed in the latest versions of Chrome, Firefox and Internet Explorer 11 (IE 11.0) browsers at a minimum resolution of '1024 x 768'."> </apex:outputText></apex:outputPanel>
+        </nav>
+    </div>
+    <apex:actionFunction name="savedLocation" action="{!savedLocation}" reRender="none" oncomplete="updateCountdown();"/>
+    <apex:actionFunction name="loadLocations" action="{!locationDetails}" reRender="myModal,locList,vehform" status="reLoad" oncomplete="initPageBlockTableEnhancerADV();clearForm();"/>
+    <apex:actionFunction name="savedVehicle" action="{!savedVehicle}" reRender="mainform,quantityTable" status="submit" oncomplete="clearVehForm();closeVehForm();displayLocations();"/>
+    <apex:actionFunction name="showSelectedLocations" action="{!showSelectedLocations}" reRender="allLocations,vehList,vehTable,newPanel,submittedPanel,balancePanel" status="submit" oncomplete="showLocationPanel();"/>
+    <apex:actionFunction name="displayLocations" action="{!locationDetails}" status="submit" /> <!-- reRender="allLocations,vehList,vehTable,newPanel,submittedPanel,balancePanel,preferredPanel,vehForm,submitAll,duplicate,delete" /> <!-- oncomplete="window.location.reload(false);"/> -->
+    <!--<apex:actionFunction name="saveandnewVehicle" action="{!savedVehicle}" reRender="allLocations,quantityTable,vehList,vehTable,newPanel,submittedPanel,balancePanel,preferredPanel,vehForm,submitAll,duplicate,delete" status="submit" oncomplete="scrollModal();"/>-->
+    <apex:actionFunction name="fetchAvailableAccessories" rerender="accessories, displayMessage, sensor, deviceType, sensorsPanel" status="reLoad" action="{!fetchAvailableAccessories}" onComplete="displaySensors('sensorFields');onChangeService();"/> 
+    <apex:actionFunction name="clearForm" action="{!clearForm}" reRender="locform"/>
+    <apex:actionFunction name="clearVehForm" action="{!clearVehForm}" reRender="vehform"/>
+    <apex:actionFunction name="populateVINDetails" action="{!getVINDataMethod}" status="reLoad" reRender="VINDecoder,vinerror,harnessPicklist,year,make,model">
+        <apex:param name="vinValue" value="" assignTo="{!VINNumber}" />   
+    </apex:actionFunction>
+    <apex:actionFunction name="submitAllVehicles" action="{!submitAllVehicles}" status="submit" oncomplete="openOrderSubmitModal();" reRender="orderSubmittedModal"/>
+    <apex:actionFunction name="deleteSelectedVehicles" action="{!deleteSelectedVehicles}" status="submit" oncomplete="window.location.href = window.location;" /> <!--  reRender="none"/> -->
+    <apex:actionFunction name="duplicateSelectedVehicles" action="{!duplicateSelectedVehicles}" status="submit" oncomplete="window.location.href = window.location;" /> <!-- oncomplete="window.location.reload(true);" reRender="none"/> -->
+    <apex:actionFunction name="editRecord" action="{!editVehicleRecord}" reRender="vehform,locpanel" status="submit" oncomplete="enableEditModel();displayOptionalFields();editdisplayOptionalFields();openService();updateCountdown();updateMultiSelectPicklist();j$('.checkNotes').change(updateCountdown);j$('.checkNotes').keyup(updateCountdown);displaySensors('sensorFields');onChangeService();">
+        <apex:param name="editVehicle" value="" assignTo="{!editvehicle}"/>
+    </apex:actionFunction>
+    <apex:actionFunction name="selectedLocationVal" action="{!fetchVehicles}" reRender="newPanel,submittedPanel, SearchFilterPanelNew, SearchFilterPanelSubmitted, vehList,vehTable,submittedVehList, rerenderSubmitted">
+        <apex:param name="selectedloc" value="" assignTo="{!selectedLocationVeh}" />   
+    </apex:actionFunction>
+    <apex:actionFunction name="fetchlocationVehicles" action="{!fetchlocationVehicles}" status="submit" reRender="vehTable,submittedVehList, SearchFilterPanelNew, SearchFilterPanelSubmitted, rerenderSubmitted,errorPanel,newPanel,submittedPanel,balancePanel,preferredPanel"/>
+    <apex:actionFunction name="setLocationState" action="{!setLocationState}" reRender="none" oncomplete="locationSelected();"/>
+    <apex:actionFunction name="locationSelected" action="{!locationSelected}" reRender="locpanel"/>  
+    <apex:actionFunction name="preferredDateLocations" action="{!preferredDateLocationsData}" status="submit" reRender="preferredPanel" oncomplete="openPreferredDateModal();"/>
+    <apex:actionFunction name="saveChildAccount" action="{!saveChildAccount}" reRender="none"/>
+    <apex:actionFunction name="getvalue" action="{!getAllvalues}"  status="Submit" reRender="addlocform"/>
+    <apex:actionFunction name="updateFlagValue" action="{!updateFlagValues}"  status="Submit" reRender="addlocform" />
+    <!--  <apex:actionFunction name="balanceLeft" action="{!balanceLeft}" reRender="servicePanel"/> -->
+    <apex:actionStatus id="reLoad" >
+        <apex:facet name="start">
+            <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.25; z-index: 2000; background-color: black;">
+                &nbsp;
+            </div>
+            <div style="position: fixed; left: 0; top: 0; bottom: 0; right: 0; z-index: 2001; margin: 15% 50%">
+                <div style="display: inline-block; padding: 2px; background-color: #fff; width: 125px;">
+                    <img src="/img/loading.gif" style="float: left; margin: 8px;" />
+                    <span style="display: inline-block; padding: 10px 0px;">Please Wait...</span>
+                </div>
+            </div>
+        </apex:facet>
+    </apex:actionStatus>
+    <!-- Notes popup -->
+    <div id="noteModal" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">  
+                <div class="modal-body">  
+                    <span><b>Notes</b></span>           
+                    <div style="float:right">
+                        <button type="button" data-dismiss="modal">&times;</button>
+                    </div>            
+                    <hr/>           
+                    <p class="addNotes"></p>
+                </div>      
+            </div>
+        </div>
+    </div>  
+    <!-- Notes popup -->
+    <!--Location Select Modal content-->
+    <!-- <div id="myModal" class="modal fade" role="dialog">
+        <apex:outputPanel id="locList">
+            <div class="modal-dialog" role="document">    
+                <div class="modal-content">
+                    <div class="modal-header">
+                        
+                        <h4 class="modal-title">Select / Add new location</h4>
+                    </div>
+                    <div class="modal-body" id="modalId">              
+                        <apex:pageBlock >   
+                            <c:PageBlockTableEnhancerADV targetPbTableIds="mid"  paginate="false" defaultPageSize="5" pageSizeOptions="5,10,25,50"/>
+                            <apex:pageBlockTable styleClass="table table-bordered" value="{!selectedLocationWrapperList}" var="loc" id="mid">   
+                                <apex:column headerValue="Select" width="10%">
+                                    <apex:inputCheckbox value="{!loc.isLocSelected}"/>
+                                </apex:column>
+                                <apex:column value="{!loc.selectedLocation.Name}"/>   
+                            </apex:pageBlockTable>
+                        </apex:pageBlock>
+                    </div>
+                    <div class="modal-footer">
+                        <div style="align:left; position: absolute; padding-bottom : 10%"> 
+                            
+                            <button type="button" data-toggle="modal"  data-dismiss="modal"
+                                    onclick="$('#myModal').modal('toggle');$('#myModal1').modal('toggle');clearClasses();resetLocationValue();" class="btn btn-lg btn-danger scheduleButton" data-backdrop="static">Add new location</button>
+                            
+                        </div>
+                        <div style="padding-left:20%;">
+                            <button type="button" class="btn btn-default" onclick="showSelectedLocations();" data-dismiss="modal" data-backdrop="false">Save</button>
+                            <button type="button"  data-dismiss="modal" class="btn btn-default">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </apex:outputPanel>
+    </div> -->
+    <!--Location Select Modal Content--> 
+    <!--Select/Add New Location Modal content-->
+    <div id="myModal1" class="modal fade" role="dialog">
+        <div class="modal-dialog" role="document">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <button type="button" class="close" data-target="#myModal1" onclick="$('#myModal').modal('toggle');" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Add new location <span style="color:#D52B1E; font-size:14px;">(* indicates required fields)</span></h4> -->
+                    <span><b>Add new location</b></span>
+                    <span style="color:#D52B1E;">(* indicates required fields)</span>
+                    <div style="float:right">
+                        <button type="button" data-target="#myModal1" onclick="$('#myModal').modal('toggle');" data-dismiss="modal">&times;</button>
+                    </div> 
+                </div>
+                <div class="modal-body">              
+                    <!-- <span><b>Add new location</b></span>
+                    <span style="color:#D52B1E;">(* indicates required fields)</span>
+                    <div style="float:right">
+                    <button type="button" data-target="#myModal1" onclick="$('#myModal').modal('toggle');" data-dismiss="modal">&times;</button>
+                    </div>            
+                    <hr/> -->
+                    <apex:outputPanel id="locform">
+                        <div class="form-group">
+                            <label for="locationName"><span style="color:#D52B1E">*</span>Location Name:</label>
+                            <apex:inputText styleClass="form-control validateRequired" id="locationName" value="{!locationWrapper.locationName}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="address1"><span style="color:#D52B1E">*</span>Address 1:</label>
+                            <apex:inputText styleClass="form-control validateRequired" id="address1" value="{!locationWrapper.address1}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="address2">Address 2:</label>
+                            <apex:inputText styleClass="form-control" id="address2" value="{!locationWrapper.address2}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="country"><span style="color:#D52B1E">*</span>Country:</label>
+                            <apex:selectList size="1" styleClass="form-control validateRequired" id="country" value="{!locationWrapper.country}"  >
+                                <apex:actionSupport event="onchange" rerender="states" />
+                                <apex:selectOptions value="{!Countries}"/>
+                            </apex:selectList>  
+                            
+                        </div>
+                        <apex:outputPanel id="states">            
+                            <div class="form-group">
+                                <label for="state"><span style="color:#D52B1E">*</span>State:</label>
+                                <apex:selectList size="1" styleClass="form-control validateRequired" id="state" value="{!locationWrapper.state}">
+                                    <apex:selectOptions value="{!States}"/>
+                                </apex:selectList>
+                            </div>
+                        </apex:outputPanel>               
+                        <div class="form-group">
+                            <label for="city"><span style="color:#D52B1E">*</span>City:</label>
+                            <apex:inputText styleClass="form-control validateRequired" id="city" value="{!locationWrapper.city}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="zip"><span style="color:#D52B1E">*</span>Zip:</label>
+                            <apex:inputText styleClass="form-control validateRequired validateZip" id="zip" value="{!locationWrapper.zip}"/>
+                        </div>
+                        <hr/>
+                        <div class="form-group">
+                            <label for="contactName"><span style="color:#D52B1E">*</span>Contact Name:</label>
+                            <apex:inputText styleClass="form-control validateRequired" id="contactName" value="{!locationWrapper.contactName}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="email"><span style="color:#D52B1E">*</span>Email:</label>
+                            <apex:inputText styleClass="form-control validateRequired validateEmail" id="email" value="{!locationWrapper.Email}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone"><span style="color:#D52B1E">*</span>Phone:</label>
+                            <apex:inputText styleClass="form-control validateRequired validatePhone" id="phone" value="{!locationWrapper.Phone}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="Phoneext">Phone Extension:</label>
+                            <apex:inputText styleClass="form-control" id="Phoneext" value="{!locationWrapper.Phoneext}"/>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox" onclick="toggler('alternateFields');" class="form-check-input"/>
+                                Add alternate contact
+                            </label>
+                        </div>
+                        <div id="alternateFields" class="hideAlternate"> <br/>            
+                            <div class="form-group">
+                                <label for="alternateContactName">Alternate Contact Name:</label>
+                                <apex:inputText styleClass="form-control" id="alternateContactName" value="{!locationWrapper.alternateContactName}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="alternateEmail">Alternate Email:</label>
+                                <apex:inputText styleClass="form-control validateEmail" id="alternateEmail" value="{!locationWrapper.alternateEmail}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="alternatePhone">Alternate Phone:</label>
+                                <apex:inputText styleClass="form-control validatePhone" id="alternatePhone" value="{!locationWrapper.alternatePhone}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="alternatePhoneext">Alternate Phone Extension:</label>
+                                <apex:inputText styleClass="form-control" id="alternatePhoneext" value="{!locationWrapper.alternatePhoneext}"/>
+                            </div>
+                        </div>
+                        <div style="padding-top:35px; padding-bottom:15px">
+                            <button type="button"  data-dismiss="modal" onclick="$('#myModal').modal('toggle');$('#myModal1').modal('toggle');" class="mybtn">Cancel</button>&nbsp;&nbsp;&nbsp;
+                            <button type="button" data-toggle="modal" onclick="saveLocation('location');" class="mybtn-active">Save</button>
+                        </div>             
+                    </apex:outputPanel>
+                </div>      
+            </div>
+        </div>
+    </div> 
+    <!--Select/Add New Location Modal Content-->
+    <!--Add New Location Modal content-->
+    <div id="myModal3" class="modal fade" role="dialog" data-backdrop="static">
+        <div class="modal-dialog" role="document">    
+            <div class="modal-content">
+                <div class="modal-body">              
+                    <span><b>Add new location</b></span>
+                    <span style="color:#D52B1E;">(* indicates required fields)</span>
+                    <div style="float:right">
+                        <!-- <button type="button" data-target="#myModal3" onclick="$('#myModal2').modal('toggle');clearClasses();" data-dismiss="modal">&times;</button>-->
+                        <button type="button" data-target="#myModal3" onclick="clearClasses();$('#myModal3').modal('toggle');validateServices();removerErrorClass();updateFlag();" data-dismiss="modal">&times;</button>
+                    </div>            
+                    <hr/>
+                    <apex:outputPanel id="addlocform">
+                    <apex:outputPanel rendered="{!disableEditofLocation}"><span style="color:#D52B1E;"><b>Attention:  </b>In view mode only. This location cannot be edited.</span></apex:outputPanel>
+                        <div class="form-group">
+
+                            <label for="addlocationName"><span style="color:#D52B1E">*</span>Location Name:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd addlocationName" id="addlocationName1" value="{!addlocationWrapper.locationName}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd addlocationName" id="addlocationName" value="{!addlocationWrapper.locationName}" rendered="{!!disableEditofLocation}"/>
+                            <!--<apex:inputText styleClass="form-control validateRequiredadd" id="addlocationName" value="{!addlocationWrapper.locationName}"/> -->
+                        </div>
+                        <div class="form-group">
+                            <label for="addaddress1"><span style="color:#D52B1E">*</span>Address 1:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd" id="addaddress11" value="{!addlocationWrapper.address1}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd" id="addaddress1" value="{!addlocationWrapper.address1}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="addaddress2">Address 2:</label>
+                            <apex:outputText styleClass="form-control" id="addaddress22" value="{!addlocationWrapper.address2}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control" id="addaddress2" value="{!addlocationWrapper.address2}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="addcountry"><span style="color:#D52B1E">*</span>Country:</label>
+                            <apex:outputtext styleClass="form-control" id="addcountry1" value="{!addlocationWrapper.country}" rendered="{!disableEditofLocation}"/>
+                            <apex:selectList size="1" styleClass="form-control validateRequiredadd" id="addcountry" value="{!addlocationWrapper.country}" rendered="{!!disableEditofLocation}">
+                                <apex:actionSupport event="onchange" rerender="addstates"  action="{!getStates}"/>
+                                <apex:selectOptions value="{!Countries}"/>
+                            </apex:selectList>   
+                        </div>
+                        <apex:outputPanel id="addstates">            
+                            <div class="form-group">
+                                <label for="addstate"><span style="color:#D52B1E">*</span>State:</label>
+                                <apex:outputtext styleClass="form-control" id="addstate1" value="{!addlocationWrapper.state}" rendered="{!disableEditofLocation}"/>
+                                <apex:selectList size="1" styleClass="form-control validateRequiredadd" id="addstate" value="{!addlocationWrapper.state}" rendered="{!!disableEditofLocation}">
+                                    <apex:selectOptions value="{!States}"/>
+                                </apex:selectList>
+                            </div>
+                        </apex:outputPanel> 
+                        <div class="form-group">
+                            <label for="addcity"><span style="color:#D52B1E">*</span>City:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd" id="addcity1" value="{!addlocationWrapper.city}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd" id="addcity" value="{!addlocationWrapper.city}" rendered="{!!disableEditofLocation}"/>
+                        </div>                          
+                        <div class="form-group">
+                            <label for="addzip"><span style="color:#D52B1E">*</span>Zip:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd validateZip" id="addzip1" value="{!addlocationWrapper.zip}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd validateZip" id="addzip" value="{!addlocationWrapper.zip}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <hr/>
+                        <div class="form-group">
+                            <label for="addcontactName"><span style="color:#D52B1E">*</span>Contact Name:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd" id="addcontactName1" value="{!addlocationWrapper.contactName}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd" id="addcontactName" value="{!addlocationWrapper.contactName}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="addemail"><span style="color:#D52B1E">*</span>Email:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd validateEmail" id="addemail1" value="{!addlocationWrapper.Email}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd validateEmail" id="addemail" value="{!addlocationWrapper.Email}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="addphone"><span style="color:#D52B1E">*</span>Phone:</label>
+                            <apex:outputText styleClass="form-control validateRequiredadd validatePhone" id="addphone1" value="{!addlocationWrapper.Phone}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control validateRequiredadd validatePhone" id="addphone" value="{!addlocationWrapper.Phone}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="Phoneext">Phone Extension:</label>
+                            <apex:outputText styleClass="form-control" id="addPhoneext1" value="{!addlocationWrapper.Phoneext}" rendered="{!disableEditofLocation}"/>
+                            <apex:inputText styleClass="form-control" id="addPhoneext" value="{!addlocationWrapper.Phoneext}" rendered="{!!disableEditofLocation}"/>
+                        </div>
+                        <div class="form-check">
+                            <label class="form-check-label"> 
+                                <input type="checkbox" onclick="toggler('addalternateFields');" class="form-check-input" />
+                                Add alternate contact
+                            </label>
+                        </div>
+                        
+                        <div id="addalternateFields" class="hideAlternate">  <br/>          
+                            <div class="form-group">
+                                <label for="addalternateContactName">Alternate Contact Name:</label>
+                                <apex:outputText styleClass="form-control" id="addalternateContactName1" value="{!addlocationWrapper.alternateContactName}" rendered="{!disableEditofLocation}"/>
+                                <apex:inputText styleClass="form-control" id="addalternateContactName" value="{!addlocationWrapper.alternateContactName}" rendered="{!!disableEditofLocation}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="addalternateEmail">Alternate Email:</label>
+                                 <apex:outputText styleClass="form-control validateEmail" id="addalternateEmail1" value="{!addlocationWrapper.alternateEmail}" rendered="{!disableEditofLocation}"/>
+                                <apex:inputText styleClass="form-control validateEmail" id="addalternateEmail" value="{!addlocationWrapper.alternateEmail}" rendered="{!!disableEditofLocation}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="addalternatePhone">Alternate Phone:</label>
+                                <apex:outputText styleClass="form-control validatePhone" id="addalternatePhone1" value="{!addlocationWrapper.alternatePhone}" rendered="{!disableEditofLocation}"/>
+                                <apex:inputText styleClass="form-control validatePhone" id="addalternatePhone" value="{!addlocationWrapper.alternatePhone}" rendered="{!!disableEditofLocation}"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="alternatePhoneext">Alternate Phone Extension:</label>
+                                <apex:outputText styleClass="form-control" id="addalternatePhoneext1" value="{!addlocationWrapper.alternatePhoneext}" rendered="{!disableEditofLocation}"/>
+                                <apex:inputText styleClass="form-control" id="addalternatePhoneext" value="{!addlocationWrapper.alternatePhoneext}" rendered="{!!disableEditofLocation}"/>
+                            </div>
+                        </div>
+                        <div style="padding-top:35px; padding-bottom:15px">
+                            <!--<button type="button"  data-dismiss="modal" onclick="$('#myModal2').modal('toggle');$('#myModal3').modal('toggle');clearClasses();updateCountdown();" class="mybtn" id="cancelBtn">Cancel</button>&nbsp;&nbsp;&nbsp;-->
+                            <button type="button"  data-dismiss="modal" onclick="$('#myModal3').modal('toggle');validateServices();clearClasses();updateCountdown();removerErrorClass();updateFlag();" class="mybtn" id="cancelBtn">Cancel</button>&nbsp;&nbsp;&nbsp;
+                            <apex:outputPanel rendered="{!!disableEditofLocation}" >
+                            <button type="button" data-toggle="modal" onclick="saveLocation('vehLocation');" class="mybtn-active">Save</button></apex:outputPanel>
+                        </div>            
+                    </apex:outputPanel>
+                </div>      
+            </div>
+        </div>
+    </div> 
+    <!--Add New Location Modal Content-->
+    <!-- Schedule New Service Modal Content-->
+    <div id="myModal2" class="modal fade" role="dialog"><!-- add attribute : data-backdrop="false" -->
+        <div class="modal-dialog" role="document">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!--  <button type="button" class="close" onclick="clearVehForm();window.location.reload();" data-dismiss="modal">&times;</button> -->
+                    <button type="button" class="close" onclick="clearVehForm();" data-dismiss="modal">&times;</button> 
+                    <h4 class="modal-title">Schedule New Service <span style="color:#D52B1E; font-size:14px;">(* indicates required fields)</span></h4>
+                </div>
+                <div class="modal-body" id="modal2Id">              
+                    <apex:outputPanel id="vehform"> 
+                        <apex:outputPanel id="servicePanel">           
+                            <div class="form-group">
+                                <label for="Service Type"><span style="color:#D52B1E">*</span>Service Type</label>
+                                <!--<apex:selectList size="1" styleClass="form-control" id="serviceType" value="{!vehicleWrapper.serviceType}">-->
+                                <apex:selectList size="1" styleClass="form-control" id="serviceType" onchange="fetchAvailableAccessories(); " value="{!vehicleWrapper.serviceType}">
+                                    <apex:selectOptions value="{!ServiceType}"/>
+                                </apex:selectList>
+                                <apex:outputPanel id="displayMessage">
+                                    
+                                    <apex:outputText value="{!IF(DisplayMessage <>'','*** ','')} {!DisplayMessage}" style="color:#AAAAAA;margin-top:20px;"> </apex:outputText>
+                                    
+                                </apex:outputPanel>                           
+                            </div>
+                        </apex:outputPanel> 
+                        <apex:outputPanel id="locpanel">
+                            <div class="form-group">
+                                <label for="Location"><span style="color:#D52B1E">*</span>Location</label>
+                                <apex:selectList size="1" styleClass="form-control" id="location" value="{!vehicleWrapper.location}">
+                                    <apex:selectOptions value="{!AccountLocations}"/>
+                                </apex:selectList>
+                                <div>
+                                    <!--<a href=""  onclick="$('#myModal2').modal('toggle');clearClasses();resetLocationValue();" data-backdrop="static" data-keyboard="false"  >Add new location</a> -->
+                                    <a href="" data-toggle="modal"  data-dismiss="modal" onclick="$('#myModal2').modal('toggle');$('#myModal3').modal('toggle');clearClasses();resetLocationValue();locationFocus();" data-backdrop="static" class="btnaddnewlocation">Add new location</a> &nbsp;&nbsp;&nbsp;
+                                    <a href="" data-toggle="modal"  data-dismiss="modal" onclick="getValues();$('#myModal2').modal('toggle');$('#myModal3').modal('toggle');clearClasses();locationFocus();" data-backdrop="static" class="btnaddnewlocation">View location</a>
+                                </div>                             
+                            </div>
+                        </apex:outputPanel>
+                        <apex:outputPanel id="vinerror" styleClass="noVINDataFlag">
+                            <apex:outputLabel rendered="{!IF(noVINDataFlag,true,false)}"><span style='color:#D52B1E'>VIN not found for vehicle diagnostics.Please enter manually</span>
+                            </apex:outputLabel>                       
+                        </apex:outputPanel>
+                        <c:row >
+                            <c:column type="col-md-5">
+                                <div class="form-group">
+                                    <label for="VINNumber"><span style="color:#D52B1E">*</span>VIN Number</label>
+                                    <apex:inputText styleClass="form-control verifyVIN" id="vinNumber" value="{!vehicleWrapper.VINNumber}"/>                      
+                                </div>
+                            </c:column>    
+                            <c:column type="col-md-4">
+                                <div class="form-group">
+                                    <label for="GetDetails">&nbsp;&nbsp;&nbsp;</label>
+                                    <button type="button" id="vinDecode" class="form-control btn btn-danger" onclick="validateVIN();" style="display-inline;">Get Year/Make/Model</button>                        
+                                </div>
+                            </c:column>
+                        </c:row>
+                        <c:row >
+                            <c:column type="col-md-4">
+                                <div class="form-group">
+                                    <label for="NoVIN">&nbsp;&nbsp;&nbsp;</label><br/>                    
+                                    <apex:inputCheckbox id="noVIN" onclick="disableFields();disableEquipment();" styleClass="form-check-input" value="{!vehicleWrapper.noVINnumber}"/>  I don't have a VIN                    
+                                    <!--<input type="checkbox" id="noEquipment" onclick="disableEquipment();" class="form-check-input"/><span style="display:inline;">Not a Vehicle</span> -->                                                                                                                                           
+                                </div>                  
+                            </c:column>
+                            <c:column type="col-md-4">
+                                <div class="form-group">
+                                    <label for="NoVIN">&nbsp;&nbsp;&nbsp;</label><br/>                    
+                                    <apex:inputCheckbox id="noEquipment" onclick="disableFieldsNoEqp();disableEquipment();" styleClass="form-check-input" value="{!vehicleWrapper.notAVehicle}"/><span style="display:inline;">  Not a Vehicle</span>                    
+                                    <!--<input type="checkbox" id="noEquipment" onclick="disableEquipment();" class="form-check-input"/><span style="display:inline;">Not a Vehicle</span> -->                                                                                                                                           
+                                </div>                  
+                            </c:column>
+                        </c:row>
+                        <apex:outputPanel id="VINDecoder" styleClass="selectVehicleFields">
+                            <c:row >
+                                <c:column type="col-md-4">
+                                    <div class="form-group">  
+                                        <label for="Year"><span style="color:#D52B1E">*</span>Year</label>
+                                        <apex:selectList size="1" styleClass="form-control" id="year" value="{!vehicleWrapper.year}">
+                                            <apex:selectOptions value="{!Year}"/>
+                                            <apex:actionSupport event="onchange" rerender="harnessPicklist,make,model"/>
+                                        </apex:selectList>
+                                    </div>
+                                </c:column> 
+                                <c:column type="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Make"><span style="color:#D52B1E">*</span>Make</label>
+                                        <apex:selectList size="1" styleClass="form-control" id="make" value="{!vehicleWrapper.make}">
+                                            <apex:selectOptions value="{!Make}"/>
+                                            <apex:actionSupport event="onchange" rerender="harnessPicklist,model"/>
+                                        </apex:selectList>                      
+                                    </div>
+                                </c:column>
+                                <c:column type="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Model"><span style="color:#D52B1E">*</span>Model</label>
+                                        <apex:selectList size="1" styleClass="form-control" id="model" value="{!vehicleWrapper.model}">
+                                            <apex:selectOptions value="{!Model}"/>
+                                            <apex:actionSupport event="onchange, onload" rerender="harnessPicklist, otherModel"/>
+                                        </apex:selectList>                      
+                                    </div>
+                                </c:column>                   
+                            </c:row>            
+                        </apex:outputPanel>
+                        <apex:outputPanel id="vehicleFields" styleClass="inputVehicleFields" style="display:none">
+                            <c:row >
+                                <c:column type="col-md-4">
+                                    <div class="form-group">  
+                                        <label for="Year"><span style="color:#D52B1E">*</span>Year</label>
+                                        <apex:inputText styleClass="form-control" id="inputyear" maxlength="4" onkeyup="yearValidation(this.value,event)" value="{!vehicleWrapper.inputYear}"/>
+                                    </div>
+                                </c:column> 
+                                <c:column type="col-md-4">
+                                    <div class="form-group">
+                                        <label for="Make"><span style="color:#D52B1E">*</span>Make</label>
+                                        <apex:inputText styleClass="form-control" id="inputmake" value="{!vehicleWrapper.inputMake}"/>
+                                    </div>
+                                </c:column>
+                                <c:column type="col-md-4">
+                                    <div class="form-group"> 
+                                        <label for="Model"><span style="color:#D52B1E">*</span>Model</label>
+                                        <apex:inputText styleClass="form-control" id="inputmodel" value="{!vehicleWrapper.inputModel}"/>
+                                    </div>
+                                </c:column>                   
+                            </c:row>
+                            <div  style="color:#D52B1E" id="yearError"></div>            
+                        </apex:outputPanel>
+                        <div class="form-group otherModel" style="display:none;" id="otherModelDiv">
+                            <label for="Other Model">Other Model</label>
+                            <apex:inputText styleClass="form-control" id="otherModel" value="{!vehicleWrapper.otherModel}"/>
+                            <apex:actionSupport event="onchange" rerender="harnessPicklist"/>
+                        </div>
+                        <div class="form-group optionalField" id="deviceTypeDiv">
+                            <label for="Device Type"><span id="txtMandatoryDiv" style="color:#D52B1E">*</span>Device Type</label>
+                            <apex:selectList size="1" styleClass="form-control" id="deviceType" value="{!vehicleWrapper.deviceType}">
+                                <apex:selectOptions value="{!DeviceType}"/>
+                                <apex:actionSupport event="onchange" rerender="harnessPicklist" status="reLoad"/>                  
+                            </apex:selectList>              
+                        </div>
+                        <div class="form-group optionalField" id="harnessTypeDiv">            
+                            <apex:outputPanel id="harnessPicklist">
+                                <label for="Harness Type">Harness Type</label>
+                                <apex:selectList size="1" styleClass="form-control" id="harnessType" value="{!vehicleWrapper.harnessType}">
+                                    <apex:selectOptions value="{!HarnessTypes}"/>
+                                </apex:selectList>
+                            </apex:outputPanel>
+                        </div>
+                        <div class="form-group optionalField" id="oldVINDiv">
+                            <!--<label for="Old VIN"><span style="color:#D52B1E">*</span>Old VIN</label>-->
+                            <label for="Old VIN">Old VIN</label>
+                            <apex:inputText styleClass="form-control" id="oldVIN" value="{!vehicleWrapper.oldVIN}"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="Vehicle Label">Vehicle Label</label> &nbsp; <span title="For example Bill's Truck, Unique identifier for vehicle that will be displayed in your portal" class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>              
+                            <apex:inputText styleClass="form-control" id="vehicleLabel" value="{!vehicleWrapper.vehicleLabel}"/>
+                        </div>
+                        <c:row >
+                            <c:column type="col-md-6">
+                                <div class="form-group optionalField" id="licensePlateDiv">
+                                    <label for="License Plate">License Plate</label>
+                                    <apex:inputText styleClass="form-control" id="licensePlate" value="{!vehicleWrapper.licensePlate}"/>
+                                </div>
+                            </c:column>
+                            <c:column type="col-md-6">
+                                <div class="form-group optionalField" id="licenseStateDiv">
+                                    <label for="License State">License State</label>              
+                                    <apex:selectList size="1" styleClass="form-control" id="licenseState" value="{!vehicleWrapper.licenseState}">
+                                        <apex:selectOptions value="{!LicenseStates}"/>
+                                    </apex:selectList>
+                                </div>
+                            </c:column>
+                        </c:row> 
+                        <div class="form-group">
+                            <label for="Color"><span style="color:#D52B1E">*</span>Color</label> &nbsp; <span title="Select the color that best represents the vehicle. If the vehicle has multiple colors, select the predominant color." class="glyphicon glyphicon-question-sign" aria-hidden="true"></span>
+                            <apex:selectList size="1" styleClass="form-control" id="color" value="{!vehicleWrapper.color}">
+                                <apex:selectOptions value="{!Colors}"/>
+                            </apex:selectList>
+                        </div>
+                        <div class="form-group otherColor" style="display:none;">
+                            <label for="Other Color">Other Color</label>
+                            <apex:inputText styleClass="form-control" id="otherColor" value="{!vehicleWrapper.otherColor}"/>
+                        </div>
+                        <div class="form-group optionalField" id="fuelTypeDiv">
+                            <label for="Fuel Type">Fuel Type</label>
+                            <apex:selectList size="1" styleClass="form-control" id="fuelType" value="{!vehicleWrapper.fuelType}">
+                                <apex:selectOptions value="{!FuelTypes}"/>
+                            </apex:selectList>
+                        </div>            
+                        <c:row >
+                            <c:column type="col-md-6">
+                                <div class="form-group">
+                                    <label for="Serial">Serial</label>
+                                    <apex:inputText styleClass="form-control" id="serial" value="{!vehicleWrapper.serial}"/>
+                                    <!--<apex:inputText styleClass="form-control" id="serial" value="{!vehicleWrapper.serial}"   onchange="validateCode(this.value)"/>-->
+                                    <!--<span class='errorText' style='color:#D52B1E;display:none'  id="serialError">Please Enter Alpha numeric Serial Number</span>-->
+                                </div>
+                            </c:column>
+                            <c:column type="col-md-6">
+                                <div class="form-group optionalField" id="oldSerialDiv">
+                                    <!-- <label for="Old Serial"><span style="color:#D52B1E">*</span>Old Serial(for swap)</label> -->
+                                    <label for="Old Serial">Old Serial(for swap)</label>
+                                    <apex:inputText styleClass="form-control" id="oldSerial" value="{!vehicleWrapper.oldSerial}"/>
+                                </div>
+                            </c:column>
+                        </c:row>                        
+                        <div class="form-group">
+                            <!--<label for="Accessories">Accessories</label>-->
+                            <!--<apex:selectList size="5" multiselect="true" styleClass="form-control" id="accessories" value="{!vehicleWrapper.accessories}">
+                                <apex:selectOptions value="{!Accessories}"/>
+                            </apex:selectList>-->
+                            <apex:outputPanel id="accessories">
+                                <script>
+                                j$ = jQuery.noConflict();
+                                j$( document ).ready(function() {
+                                    updateMultiSelectPicklist(); 
+                                });
+                                function updateMultiSelectPicklist(){
+                                    j$('.rightArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/rightArrow.png')}');
+                                    j$('.rightArrowIcon').removeAttr("title");
+                                    j$('.leftArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/leftArrow.png')}');
+                                    j$('.leftArrowIcon').removeAttr("title");
+                                    j$('.upArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/upArrow.png')}');
+                                    j$('.upArrowIcon').removeAttr("title");
+                                    j$('.downArrowIcon').attr('src','{!URLFOR($Resource.SRS,'SRS/downArrow.png')}');
+                                    j$('.downArrowIcon').removeAttr("title");
+                                }
+                                </script>
+                                <c:MultiselectPicklist leftLabel="Available Accessories" leftOptions="{!vehicleWrapper.availableAccessories}" rightLabel="Selected Accessories" rightOptions="{!vehicleWrapper.selectedAccessories}" size="7" width="225px"></c:MultiselectPicklist>
+                            </apex:outputPanel>
+                        </div>
+                        <div class="form-check">
+                            
+                            <label class="form-check-label">
+                                <!--<input type="checkbox" id="sensor" onclick="toggler('sensorFields');" class="form-check-input"/>-->
+                                <apex:inputCheckbox id="sensor" onclick="displaySensors('sensorFields');" value="{!vehicleWrapper.sensorFlag}" styleClass="form-check-input" disabled="{!IsSensorCheckboxDisabled}"/>
+                                Sensors
+                            </label>
+                        </div>
+                        <div id="sensorFields" class="hideAlternate">
+                            <apex:outputPanel id="sensorsPanel">
+                                <apex:outputPanel id="sensor1Panel" rendered="{!!IsSensorCheckboxDisabled}">
+                                    <div class="form-group">
+                                        <label for="Sensor1">Sensor1 Name</label>
+                                        <apex:inputText styleClass="form-control" id="Sensor1" value="{!vehicleWrapper.sensor1}"/>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel id="sensor2Panel" rendered="{!!IsSensorCheckboxDisabled}">
+                                    <div class="form-group">
+                                        <label for="Sensor2">Sensor2 Name</label>
+                                        <apex:inputText styleClass="form-control" id="Sensor2" value="{!vehicleWrapper.sensor2}"/>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel id="sensor3Panel" rendered="{!!IsSensorCheckboxDisabled}">
+                                    <div class="form-group">
+                                        <label for="Sensor3">Sensor3 Name</label>
+                                        <apex:inputText styleClass="form-control" id="Sensor3" value="{!vehicleWrapper.sensor3}"/>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel id="sensor4Panel" rendered="{!!IsSensorCheckboxDisabled}">
+                                    <div class="form-group">
+                                        <label for="Sensor4">Sensor4 Name</label>
+                                        <apex:inputText styleClass="form-control" id="Sensor4" value="{!vehicleWrapper.sensor4}"/>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel id="sensor5Panel" rendered="{!!IsSensorCheckboxDisabled}">
+                                    <div class="form-group">
+                                        <label for="Sensor5">Sensor5 Name</label>
+                                        <apex:inputText styleClass="form-control" id="Sensor5" value="{!vehicleWrapper.sensor5}"/>
+                                    </div>
+                                </apex:outputPanel>
+                                <apex:outputPanel id="sensor6Panel" rendered="{!!IsSensorCheckboxDisabled}">
+                                    <div class="form-group">
+                                        <label for="Sensor6">Sensor6 Name</label>
+                                        <apex:inputText styleClass="form-control" id="Sensor6" value="{!vehicleWrapper.sensor6}"/>
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </div>
+                        <div class="form-group optionalField" id="returnToDiv">
+                            <label for="Return To"><span id="txtMandatoryDiv" style="color:#D52B1E">*</span>Return To</label>
+                            <apex:selectList size="1" styleClass="form-control validateReturnTo" id="returnTo" value="{!vehicleWrapper.returnTo}">
+                                <apex:selectOptions value="{!ReturnTo}"/>
+                            </apex:selectList>  
+                        </div>            
+                        <div class="form-group">
+                            <label for="Notes">Notes</label>
+                            <apex:inputTextarea styleClass="form-control checkNotes" id="notes" rows="5" cols="30" value="{!vehicleWrapper.notes}"/>
+                            <!--<textarea Class="form-control checkNotes"  id="notes" rows="5" cols="30" maxlength="2000" value="{!vehicleWrapper.notes}">{!vehicleWrapper.notes}</textarea>-->
+                            <span class="countdown"></span>
+                        </div>
+                        <div style="padding-top:35px; padding-bottom:15px">
+                            <!--<button type="button"  data-dismiss="modal" class="mybtn">Cancel</button>&nbsp;&nbsp;&nbsp; -->
+                            <button type="button" data-dismiss="modal" class="mybtn" onclick="clearVehForm();">Cancel</button> 
+                            <!--  <apex:commandButton styleClass="mybtn" action="{!reloadOnCancel}" value="Cancel" /> -->
+                            &nbsp;&nbsp;&nbsp;
+                            <apex:commandButton styleClass="mybtn-active" html-data-backdrop="false" html-data-toggle="modal" rerender="sensorFields" onclick="saveVehicle(); return false;" value="Save" />           
+                            <!-- <button type="button"  data-backdrop="false" data-toggle="modal" class="mybtn-active" onclick="saveVehicle();">Save</button>&nbsp;&nbsp;&nbsp; -->
+                            <!-- <button type="button"  data-backdrop="false" data-toggle="modal" class="mybtn-active btnSaveAndNew" onclick="saveVehicle('2');">Save &amp; New</button>-->
+                        </div>            
+                    </apex:outputPanel>
+                </div>      
+            </div>
+        </div>
+    </div>    
+    <!--Schedule New Service Modal Content--> 
+    <!-- Location preferred date functionality -->
+    <div id="preferredDateModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">    
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Select preferred install date and time for each location</h4>          
+      </div>
+      <div class="modal-body" style="padding-bottom:250px;padding-right:50px">
+        <apex:outputPanel id="preferredPanel">
+          <c:row >
+              <c:column type="col-md-2">
+                  <label>Location Name</label>
+              </c:column>
+              <c:column type="col-md-5">
+                  <label>First Preferred Appointment &nbsp; Date Time</label>
+              </c:column>
+              <c:column type="col-md-5">
+                  <label>Second Preferred Appointment Date Time</label>
+              </c:column> 
+          </c:row>    
+         
+          <apex:repeat value="{!preferredDatesLocationList}" var="locDate"  id="rep">
+          <c:row >
+              <c:column type="col-md-2"  id="col1">
+                  <span>{!locDate.Name}</span>
+                  
+                 <apex:outputText styleClass="nameC"   value="{!locDate.id}" style="display: none;"></apex:outputText>
+              </c:column>
+              <c:column type="col-md-5" id="col2">
+                   <div class="form-group">
+                        <div class="input-group date datetimepicker1" id="datetimepicker1">
+                            <!--<apex:inputField styleClass="form-control" value="{!locDate.Preferred_Install_Date_Time_1__c}" />-->
+                           <apex:inputText styleClass="form-control dp1" value="{!locDate.Preferred_Install_Date_Time_1__c}"    />
+                            <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                        </div>
+                  </div>
+              </c:column>
+              <c:column type="col-md-5">
+                  <div class="form-group">
+                        <div class="input-group date datetimepicker2" id="datetimepicker2">
+                            <apex:inputText styleClass="form-control dp2"  value="{!locDate.Preferred_Install_Date_Time_2__c}"  /> 
+                            <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                       </div> 
+                  </div>
+              </c:column>
+          </c:row>
+          </apex:repeat>
+          </apex:outputPanel>                          
+      </div>      
+      <div class="modal-footer">
+         <div style="padding-left:20%;">
+            <button type="button" class="btn btn-default" data-dismiss="modal" data-backdrop="false" onclick="captureData();">Save</button> 
+            <button type="button" class="btn btn-default" data-dismiss="modal" data-backdrop="false">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
+    <!-- Location preferred date functionality -->
+    <!-- No Purchases Available Modal -->
+    <div id="noPurchaseModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Alert</h4>          
+                </div>
+                <div class="modal-body">
+                    <c:alert type="danger">No purchases available to schedule new service.</c:alert>        
+                </div>
+                <div class="modal-footer">
+                    <div style="padding-left:20%;">            
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-backdrop="false">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <!-- No Purchases Available Modal -->
+    <!-- No Purchases Duplicate Modal -->
+    <div id="noPurchaseModalDuplicate" class="modal fade" role="dialog">
+        <div class="modal-dialog">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Alert</h4>          
+                </div>
+                <div class="modal-body">
+                    <c:alert type="danger">No purchases available to duplicate.</c:alert>        
+                </div>
+                <div class="modal-footer">
+                    <div style="padding-left:20%;">            
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-backdrop="false">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    <!-- No Purchases Duplicate Modal -->
+    <!-- Order Submitted Modal -->
+    <div id="orderSubmittedModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Order Status</h4>          
+                </div>
+                <div class="modal-body">
+                    <c:alert type="success">Your order request has been submitted. An installation coordinator will contact you shortly to confirm your appointment.</c:alert>        
+                </div>
+                <div class="modal-footer">
+                    <div style="padding-left:20%;">            
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-backdrop="false" onClick="window.location = window.location.href;//window.location.reload(true);">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <!-- Order Submitted Modal -->
+    <!-- User Guide Model Content start -->   
+    <div id="myModal4" class="modal fade" role="dialog"><!-- add attribute : data-backdrop="false" -->
+        <div class="modal-dialog" role="document">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <div class="modal-body">
+                        <!--  <span><b>Need Help Getting Started? <a href="https://c.cs13.content.force.com/servlet/servlet.FileDownload?file=015W0000000AwZL"  target="_blank" styleClass="btn"><u><b>Click Here</b></u></a> to download instructions.</b></span><br/><br/><br/>-->
+                        <span>Need Help Getting Started? Watch <a href="https://player.vimeo.com/video/242403333" target="_blank">Video</a> and/or download the <a target="_blank" id="mylink" style="color:rgb(45, 136, 224);" href="{!URLFOR($Action.Document.Download, documentURL1)}">User Guide</a>. </span>
+                    </div>
+                    
+                    
+                </div>
+                <!-- <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>  -->  
+            </div>
+        </div>
+    </div>  
+    <!-- User Guide Model Content end--> 
+    <!-- Negative balance Modal -->
+    <div id="orderNegativeModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">    
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Order Status</h4>          
+                </div>
+                <div class="modal-body">
+                    <c:alert type="danger">You are attempting to submit additional services than purchased. Please purchase more services before submitting new vehicles.</c:alert>        
+                </div>
+                <div class="modal-footer">
+                    <div style="padding-left:20%;">            
+                        <button type="button" class="btn btn-default" data-dismiss="modal" data-backdrop="false">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>  
+    <!-- Negative balance Modal -->
+</apex:form>
+</apex:page>

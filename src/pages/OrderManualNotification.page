@@ -1,0 +1,7 @@
+<apex:page standardController="Orders__c"  standardStylesheets="false" rendered="{!Orders__c.Manual_Order__c == true}" >
+<apex:pageBlock >
+        <div style="text-align:left align;font-size: 18px; font-weight: bold ;">
+           <apex:outputLabel value="Notification: This Order is placed manually in EO." />
+        </div>
+    </apex:pageBlock>
+</apex:page>

@@ -1,0 +1,21 @@
+<apex:component controller="RALogDetailController" access="global">
+  <apex:attribute name="raLog" description="RelatedLogs" type="String" assignTo="{!raLogId}" />
+   <table bordercolor="#00000" width="600" cellpadding="3" cellspacing="3">
+       <tr>
+       <td> Serial Number </td>
+       <td> Networkfleet device(s) </td>
+       <td> Address </td>
+       </tr>       
+      <apex:repeat value="{!raLogDetails}" var="rld">
+      <tr>
+          <td>{!rld.Serial_Number__c} </td>
+          <td> {!rld.Unit_Type_Needed__c} </td> 
+          <td>Attention to: {!rld.RA_Location__r.ContactName__c}<br/> {!rld.RA_Location__r.Ship_Company__c}<br/>
+          {!rld.RA_Location__r.Garage_Address1__c}<br/> {!rld.RA_Location__r.Garage_City__c}<br/>
+          {!rld.RA_Location__r.Garage_State__c}<br/> {!rld.RA_Location__r.Garage_Zip__c}<br/>
+          </td>          
+      </tr>
+      </apex:repeat>
+      </table>
+  
+  </apex:component>

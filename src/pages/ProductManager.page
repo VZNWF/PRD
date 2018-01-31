@@ -1,0 +1,346 @@
+<apex:page tabstyle="Opportunity" controller="ProductManagerController" action="{!initPage}">
+
+<style>
+#statusPanel {
+	position: absolute;
+	top: -9999em;
+	left: -9999em;
+	background-color: #666;
+	color: #fff;
+	padding: 10px;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+</style>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script src="{!URLFOR($Resource.jQuery_Numeric_Plugin)}"></script>
+<script>
+	var hasCreatedLineItems;
+	var currentTypeOfSale = '{!opportunity.Type_of_Sale__c}';
+	var currentInstallationType = '{!opportunity.Install_Type__c}';
+
+	jQuery(document).ready(function() {
+	
+		//------------------------------------------------------------------
+		// Type of Sale change.
+		//------------------------------------------------------------------
+		
+		jQuery('select[name$="typeOfSale"]').live('change', function(e) {
+			if (hasCreatedLineItems && !confirm("Changing the Type of Sale will remove all products from this Opportunity. Continue?")) {
+				jQuery(this).val(currentTypeOfSale);
+				e.preventDefault();
+				return;
+			}
+			
+			currentTypeOfSale = jQuery(this).val();
+			updateTypeOfSale();
+		});
+
+
+		//------------------------------------------------------------------
+		// Installation Type change.
+		//------------------------------------------------------------------
+		
+		jQuery('select[name$="installationType"]').live('change', function(e) {
+			if (hasCreatedLineItems && jQuery(this).val() == 'Self Install' && !confirm("All products with the category of Installation will be deleted. Continue?")) {
+				jQuery(this).val(currentInstallationType);
+				e.preventDefault();
+				return;
+			}
+			
+			currentInstallationType = jQuery(this).val();
+			updateInstallationType();
+		});
+
+	});
+
+	function showStatusPanel() {
+		var top = (jQuery(window).height() - jQuery('#statusPanel').outerHeight()) / 2 + jQuery(window).scrollTop();
+		var left = (jQuery(window).width() - jQuery('#statusPanel').outerWidth()) / 2 + jQuery(window).scrollLeft();
+		jQuery('#statusPanel').appendTo('body').css({top: (top > 0 ? top : 0) + 'px', left: (left > 0 ? left : 0) + 'px'});
+	}
+
+	function hideStatusPanel() {
+		jQuery('#statusPanel').css({top: '-9999em', left: '-9999em'}); 
+	}
+
+	function formatDollar(num) {
+		var p = num.toFixed(2).split(".");
+		return "$" + p[0].split("").reverse().reduce(function(acc, num, i, orig) {
+			return  num + (i && !(i % 3) ? "," : "") + acc;
+		}, "") + "." + p[1];
+	}
+	
+	
+	function shouldSave() {
+		var missingQuantities = false;
+		
+		$('input.quantity:enabled').each(function() {
+			if ($(this).val().trim() < 1) {
+				missingQuantities = true;
+			}
+		});
+		
+		if (missingQuantities) {
+			return confirm('Items with no quantity will be deleted, do you want to continue?');
+		}
+		
+		return true;
+	}
+</script>
+
+<apex:sectionHeader title="Opportunity" subtitle="{!opportunity.Name}" />
+
+<apex:pageMessages />
+
+<apex:form >
+<apex:actionFunction name="updateTypeOfSale" action="{!updateTypeOfSale}" rerender="pageBlock" status="status"/>
+<apex:actionFunction name="updateInstallationType" action="{!updateInstallationType}" rerender="pageBlock" status="status"/>
+
+<apex:actionStatus onstart="showStatusPanel();" onstop="hideStatusPanel();" id="status">
+	<apex:facet name="start">
+		<div id="statusPanel"><img src="{!URLFOR($Resource.Spinner)}" width="16" height="16" style="vertical-align: middle;"/> Loading...</div>
+	</apex:facet>
+</apex:actionStatus>
+
+<apex:outputPanel rendered="{!opportunity.Pricebook2Id != null && NOT(opportunity.Pricebook2.IsActive)}">
+	<apex:commandButton value="OK" action="{!changePricebook}"/>
+	<apex:commandButton value="Cancel" action="{!URLFOR($Action.Opportunity.View, opportunity.Id)}"/>
+</apex:outputPanel>
+
+<apex:pageBlock id="pageBlock" title="Product Manager" mode="edit" rendered="{!(opportunity.Pricebook2Id == null || opportunity.Pricebook2.IsActive) && NOT(hasErrorMessages)}">
+	<apex:pageBlockSection title="Price Book and Pricing Tiers" columns="1">
+		<apex:pageBlockSectionItem >
+			<apex:outputLabel value="Type Of Sale" for="typeOfSale"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+                <apex:inputField id="typeOfSale" value="{!opportunity.Type_of_Sale__c}"/>
+            </apex:outputPanel>
+		</apex:pageBlockSectionItem>
+
+		<apex:pageBlockSectionItem rendered="{!opportunity.Type_of_Sale__c == 'Bundled'}">
+			<apex:outputLabel value="Bundle Tier" for="bundleTier"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+                <apex:inputField id="bundleTier" value="{!opportunity.Bundle_Tier__c}">
+                	<apex:actionSupport event="onchange" action="{!updateTier}" rerender="pageBlock" status="status"/>
+                </apex:inputField>
+            </apex:outputPanel>
+		</apex:pageBlockSectionItem>
+
+		<apex:pageBlockSectionItem rendered="{!opportunity.Type_of_Sale__c != null && opportunity.Type_of_Sale__c != 'Bundled'}">
+			<apex:outputLabel value="Hardware Tier" for="hardwareTier"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+				<apex:inputField id="hardwareTier" value="{!opportunity.Hardware_Tier__c}">
+					<apex:actionSupport event="onchange" action="{!updateTier}" rerender="pageBlock" status="status"/>
+				</apex:inputField>
+			</apex:outputPanel>
+		</apex:pageBlockSectionItem>
+		
+		<apex:pageBlockSectionItem rendered="{!opportunity.Type_of_Sale__c != null && opportunity.Type_of_Sale__c != 'Bundled'}">
+			<apex:outputLabel value="Accessory Tier" for="accessoryTier"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+				<apex:inputField id="accessoryTier" value="{!opportunity.Accessory_Tier__c}">
+					<apex:actionSupport event="onchange" action="{!updateTier}" rerender="pageBlock" status="status"/>
+				</apex:inputField>
+			</apex:outputPanel>
+		</apex:pageBlockSectionItem>
+
+		<apex:pageBlockSectionItem rendered="{!opportunity.Type_of_Sale__c != null && opportunity.Type_of_Sale__c != 'Bundled'}">
+			<apex:outputLabel value="Service Tier" for="serviceTier"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+				<apex:inputField id="serviceTier" value="{!opportunity.Service_Tier__c}">
+					<apex:actionSupport event="onchange" action="{!updateTier}" rerender="pageBlock" status="status"/>
+				</apex:inputField>
+			</apex:outputPanel>
+		</apex:pageBlockSectionItem>
+		
+		<apex:pageBlockSectionItem rendered="{!opportunity.Type_of_Sale__c != null}">
+			<apex:outputLabel value="Installation Type" for="installationType"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+                <apex:inputField id="installationType" value="{!opportunity.Install_Type__c}"/>
+			</apex:outputPanel>
+		</apex:pageBlockSectionItem>
+		
+		<apex:pageBlockSectionItem rendered="{!opportunity.Type_of_Sale__c != null && opportunity.Type_of_Sale__c != 'Bundled'}">
+			<apex:outputLabel value="Installation Tier" for="installationTier"/>
+			<apex:outputPanel layout="block" styleClass="requiredInput">
+                <div class="requiredBlock"></div>
+                <apex:inputField id="installationTier" value="{!opportunity.Installation_Tier__c}">
+                	<apex:actionSupport event="onchange" action="{!updateTier}" rerender="pageBlock" status="status"/>
+                </apex:inputField>
+			</apex:outputPanel>
+		</apex:pageBlockSectionItem>
+
+	</apex:pageBlockSection>
+	
+	<apex:pageBlockSection id="products" title="Products" columns="1" rendered="{!showProducts}">
+			<script>
+				hasCreatedLineItems = {!HasCreatedLineItems};
+
+				(function($) {
+	
+					$(document).ready(function() {
+						$('.quantity').removeNumeric().numeric(false);
+						$('.quantity').on('keyup', function() {
+							if ($(this).val().length > 0) {
+								var salePrice;
+								if ($(this).closest('tr').find('.salePrice').length > 0) {
+									salePrice = $(this).closest('tr').find('.salePrice').html().replace('$', '');
+								} else {
+									salePrice = $(this).closest('tr').find('.salePriceInput').val().trim();
+								}
+							
+								if (salePrice.length > 0) {
+									var totalPrice = formatDollar($(this).val() * salePrice); 
+									$(this).closest('tr').find('.totalPrice').html(totalPrice);
+								}
+
+								// Update child product if it exists.
+								$(this).closest('tr').next().find('input[type="hidden"]').val($(this).val());
+								$(this).closest('tr').next().find('.childQuantity').html($(this).val());
+								
+								var childSalePrice;
+								if ($(this).closest('tr').next().find('.salePrice').length > 0) {
+									childSalePrice = $(this).closest('tr').next().find('.salePrice').html().replace('$', '');
+								} else {
+									childSalePrice = $(this).closest('tr').next().find('.salePriceInput').val().trim();
+								}
+								
+								if (childSalePrice.length > 0) {
+									var totalPrice = formatDollar($(this).val() * childSalePrice); 
+									$(this).closest('tr').next().find('.totalPrice').html(totalPrice);
+								}
+							} else {
+								$(this).closest('tr').find('.totalPrice').html('');
+								
+								// Update child product if it exists.
+								$(this).closest('tr').next().find('input[type="hidden"]').val('');
+								$(this).closest('tr').next().find('.childQuantity').html('');
+								$(this).closest('tr').next().find('.totalPrice').html('');
+							}
+						});
+						
+						$('.salePriceInput').removeNumeric().numeric({decimal: '.', negative: false});
+						$('.salePriceInput').on('keyup', function() {
+							var quantity = $(this).closest('tr').find('.quantity').val().trim();
+						
+							if (quantity.length > 0 && $(this).val().length > 0) {
+								var totalPrice = formatDollar(quantity * $(this).val());
+								$(this).closest('tr').find('.totalPrice').html(totalPrice);
+							} else {
+								$(this).closest('tr').find('.totalPrice').html('');
+							}
+						});
+					});
+					
+				})(jQuery);
+			</script>
+	
+		<apex:variable var="currentIndex" value="{!0}"/>
+		<apex:pageblocktable value="{!lineItems}" var="lineItem">
+	        <!--apex:column headerValue="Action">
+	        	<apex:commandLink action="{!deleteProduct}" value="Del" onclick="if(!confirm('Are you sure you want to delete this Product?')) return false;" rendered="{!lineItem.parentId == null}">
+					<apex:param name="lineItemIndex" assignTo="{!lineItemIndex}" value="{!currentIndex}"/>
+				</apex:commandLink>
+	        </apex:column-->
+	        <apex:column headerValue="Category">
+	            <apex:selectList value="{!lineItem.category}" size="1" rendered="{!lineItem.parentPricebookEntryId == null}">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+					<apex:selectOptions value="{!categoryOptions}"/>
+					<apex:actionSupport event="onchange" action="{!updateDisplay}" rerender="products" status="status"/>
+				</apex:selectList>
+	        </apex:column>
+	        <apex:column headerValue="Product Name">
+	        	<apex:outputPanel rendered="{!lineItem.parentPricebookEntryId != null}">
+	        		<img src="{!URLFOR($Resource.Elbow)}"/>
+	        		{!lineItem.productName}
+	        	</apex:outputPanel>
+	        	
+	            <apex:selectList value="{!lineItem.productId}" size="1" rendered="{!lineItem.parentPricebookEntryId == null && lineItem.category == null}" disabled="true">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+				</apex:selectList>
+				
+				<apex:selectList value="{!lineItem.productId}" size="1" rendered="{!lineItem.parentPricebookEntryId == null && lineItem.category == 'Accessory'}">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+					<apex:selectOptions value="{!accessoryProductOptions}"/>
+					<apex:actionSupport event="onchange" action="{!updateProduct}" rerender="products" status="status">
+						<apex:param name="lineItemIndex" assignTo="{!lineItemIndex}" value="{!currentIndex}"/>
+					</apex:actionSupport>
+				</apex:selectList>
+				
+				<apex:selectList value="{!lineItem.productId}" size="1" rendered="{!lineItem.parentPricebookEntryId == null && lineItem.category == 'Bundle'}">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+					<apex:selectOptions value="{!bundleProductOptions}"/>
+					<apex:actionSupport event="onchange" action="{!updateProduct}" rerender="products" status="status">
+						<apex:param name="lineItemIndex" assignTo="{!lineItemIndex}" value="{!currentIndex}"/>
+					</apex:actionSupport>
+				</apex:selectList>
+				
+				<apex:selectList value="{!lineItem.productId}" size="1" rendered="{!lineItem.parentPricebookEntryId == null && lineItem.category == 'Hardware'}">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+					<apex:selectOptions value="{!hardwareProductOptions}" />
+					<apex:actionSupport event="onchange" action="{!updateProduct}" rerender="products" status="status">
+						<apex:param name="lineItemIndex" assignTo="{!lineItemIndex}" value="{!currentIndex}"/>
+					</apex:actionSupport>
+				</apex:selectList>
+				
+				<apex:selectList value="{!lineItem.productId}" size="1" rendered="{!lineItem.parentPricebookEntryId == null && lineItem.category == 'Installation'}">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+					<apex:selectOptions value="{!installationProductOptions}"/>
+					<apex:actionSupport event="onchange" action="{!updateProduct}" rerender="products" status="status">
+						<apex:param name="lineItemIndex" assignTo="{!lineItemIndex}" value="{!currentIndex}"/>
+					</apex:actionSupport>
+				</apex:selectList>
+				
+				<apex:selectList value="{!lineItem.productId}" size="1" rendered="{!lineItem.parentPricebookEntryId == null && lineItem.category == 'Service'}">
+					<apex:selectOption itemValue="" itemLabel="--None--"/>
+					<apex:selectOptions value="{!serviceProductOptions}"/>
+					<apex:actionSupport event="onchange" action="{!updateProduct}" rerender="products" status="status">
+						<apex:param name="lineItemIndex" assignTo="{!lineItemIndex}" value="{!currentIndex}"/>
+					</apex:actionSupport>
+				</apex:selectList>
+	        </apex:column>
+	        <apex:column headerValue="Qty">
+	            <apex:inputText value="{!lineItem.quantity}" disabled="{!lineItem.productId == null}" styleClass="quantity" rendered="{!lineItem.parentPricebookEntryId == null}"/>
+	            <apex:outputPanel rendered="{!lineItem.parentPricebookEntryId != null}">
+	            	<apex:inputHidden value="{!lineItem.quantity}"/>
+	            	<apex:outputText value="{!lineItem.quantity}" styleClass="childQuantity"/>
+	            </apex:outputPanel>
+	        </apex:column>
+	        <apex:column headerValue="Sale Price">
+	        	<apex:inputText value="{!lineItem.salePrice}" disabled="{!lineItem.productId == null}" styleClass="salePriceInput" rendered="{!(opportunity.Hardware_Tier__c == 'Custom' && lineItem.category == 'Hardware') || (opportunity.Accessory_Tier__c == 'Custom' && lineItem.category == 'Accessory') || (opportunity.Service_Tier__c == 'Custom' && lineItem.category == 'Service') || (opportunity.Installation_Tier__c == 'Custom' && lineItem.category == 'Installation') || (opportunity.Bundle_Tier__c == 'Custom' && (lineItem.category == 'Accessory' || lineItem.category == 'Bundle')) || (opportunity.Type_of_Sale__c == 'Bundled' && opportunity.Bundle_Tier__c == 'Custom' && lineItem.category == 'Installation')}"/>
+	        
+	            <apex:outputText value="{0, number, $#,##0.00}" styleClass="salePrice" rendered="{!NOT((opportunity.Hardware_Tier__c == 'Custom' && lineItem.category == 'Hardware') || (opportunity.Accessory_Tier__c == 'Custom' && lineItem.category == 'Accessory') || (opportunity.Service_Tier__c == 'Custom' && lineItem.category == 'Service') || (opportunity.Installation_Tier__c == 'Custom' && lineItem.category == 'Installation') || (opportunity.Bundle_Tier__c == 'Custom' && (lineItem.category == 'Accessory' || lineItem.category == 'Bundle')) || (opportunity.Type_of_Sale__c == 'Bundled' && opportunity.Bundle_Tier__c == 'Custom' && lineItem.category == 'Installation'))}">
+       				<apex:param value="{!lineItem.salePrice}"/>
+ 				</apex:outputText>
+	        </apex:column>
+	        <apex:column headerValue="Total Price">
+	            <apex:outputText value="{0, number, $#,##0.00}" styleClass="totalPrice">
+       				<apex:param value="{!lineItem.totalPrice}"/>
+ 				</apex:outputText>
+ 				
+ 				<!-- Increment index each time through the pageblock table. -->
+ 				<apex:variable var="currentIndex" value="{!currentIndex + 1}"/>
+	        </apex:column>
+	    </apex:pageblocktable>
+
+
+		<apex:commandButton action="{!addProduct}" value="Add Product" rerender="pageBlock" status="status"/>
+	</apex:pageBlockSection>
+	
+	<apex:pageBlockButtons location="bottom">
+		<apex:commandButton value="Save" action="{!save}" disabled="{!NOT(showProducts)}" onclick="if (!shouldSave()) return false;"/>
+		<apex:commandButton value="Cancel" action="{!URLFOR($Action.Opportunity.View, opportunity.Id)}" immediate="true" onclick="if(!confirm('If you leave this page, you will lose any unsaved changes. Continue?')) return false;"/>
+	</apex:pageBlockButtons>
+</apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

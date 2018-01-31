@@ -1,0 +1,1 @@
+public with sharing class Workforce2_OrgNamespace { private static final String orgNamespace=[select NamespacePrefix from ApexClass where Name like '%Workforce2_OrgNamespace%' limit 1].NamespacePrefix;  @RemoteAction public static String getOrgNamespace() { if ( orgNamespace!=null ) { return orgNamespace; } return ''; } }

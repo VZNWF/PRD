@@ -1,0 +1,102 @@
+<apex:page standardController="Order_Product__c" extensions="MapOrderProductExtensions">
+<apex:form >
+<apex:sectionHeader title="Available Products"/>
+
+<apex:pageBlock id="mainblk">
+    <apex:pageblockSection >
+        <apex:pageblockTable value="{!avlProdLst}" var="o">
+            <apex:column headervalue="Product Code">
+                <apex:outputText value="{!o.prodCode}"/>
+            </apex:column>
+            <apex:column headervalue="Product Name">
+                <apex:outputText value="{!o.prodName}"/>
+            </apex:column>
+             <apex:column headerValue="Quantity Selected">
+                <apex:outputText value="{!o.qty}"/>
+            </apex:column>
+             <apex:column headerValue="Balance Quantity">
+                <apex:outputText value="{!o.avlQty}"/>
+            </apex:column>
+        </apex:pageblockTable>
+    </apex:pageblockSection>
+</apex:pageBlock>
+<apex:sectionHeader title="Add Products"/>
+<apex:pageBlock id="pb1">
+    <apex:pageMessages ></apex:pageMessages>
+    <apex:pageBlockSection id="pbs1" columns="1">  
+         <apex:pageblockTable value="{!ordListToDisp}" var="o" rendered="{!ordListToDisp.size > 0}">
+           
+        <apex:column headerValue="Action">
+        <apex:commandLink value="Delete" style="color:Blue" action="{!deleteOrderProductRow}"  reRender="mainblk,pbs1, pbs2"> 
+        <apex:param name="rowid" value="{!o.locationNumber}" assignTo="{!SelectedRowId}"/>        
+        </apex:commandLink>      
+        </apex:column> 
+              
+      <!--<apex:column >
+      <apex:facet name="header">Action</apex:facet><apex:commandLink action="{!removecon}" >
+      <apex:param assignTo="{!ordListToDispid}" value="{!o.id}" name="assignvalue" /> Remove Row</apex:commandLink> 
+      </apex:column> -->
+           
+            <apex:column headerValue="Products">
+                <apex:outputLabel value="{!o.Ord.Product_Name__c}" />
+              </apex:column>
+            
+            <apex:column headervalue="Quantity">
+                <apex:outputField value="{!o.Ord.Quantity__c}"/>
+            </apex:column>
+            <apex:column headerValue="Location">
+              <apex:outputField value="{!o.Ord.Location__c}"/>
+            </apex:column>
+           
+        </apex:pageblockTable>
+     </apex:pageblocksection>
+     <apex:pageblocksection id="pbs2" columns="1">       
+        <apex:pageblockTable value="{!ordList}" var="o" rendered="{!ordList.size > 0}">
+        
+       <apex:column headerValue="Action">
+        <apex:commandLink value="Remove" style="color:red" action="{!deleteRow}" reRender="pbs1, pbs2" > 
+        <apex:param name="rowid" value="{!o.locationNumber}" assignTo="{!SelectedRowId}"/>        
+        </apex:commandLink>      
+        </apex:column>
+        
+        <!--<apex:column ><apex:facet name="header">Action</apex:facet>
+      <apex:commandLink action=" removecon" reRender="pbs2" ><apex:param assignTo="{!conid}" value="{!o.id}" name="assignvalue" /> Remove Row</apex:commandLink> 
+      </apex:column>-->
+        
+       <!-- <apex:column >
+      <apex:facet name="header">Action</apex:facet><apex:commandLink action="DeleteRow" >
+      <apex:param assignTo="{!ordListToDispid}" value="{!o.id}" name="assignvalue" /> Remove Row</apex:commandLink> 
+      </apex:column> -->
+      
+            <apex:column headerValue="Products">
+                <apex:selectList value="{!o.Ord.Product_Name__c}" size="1">
+                    <apex:selectOptions value="{!o.prodLst}"></apex:selectOptions>
+                </apex:selectList>
+            </apex:column>
+            
+            <apex:column headervalue="Quantity">
+                <apex:inputField value="{!o.ord.Quantity__c}"/>
+            </apex:column>
+            <apex:column headerValue="Location">
+                <apex:selectList value="{!o.ord.OrderLocationMappings__c}" size="1">
+                    <apex:selectOptions value="{!o.loclst}"></apex:selectOptions>
+                </apex:selectList>
+            </apex:column>
+            <apex:column headervalue="Install Quantity" rendered="{!showInstQty}">
+                <apex:inputText value="{!o.instQty}"/>
+            </apex:column>
+           
+        </apex:pageblockTable>
+    </apex:pageBlockSection>
+    
+<apex:commandButton value="Add Row" action="{!AddProduct}" reRender="pbs1, pbs2"/>
+<div align="center" draggable="false" >
+<apex:commandButton value="Save" action="{!quicksave}" reRender="mainblk, pb1, pbs1, pbs2"/>
+<apex:commandButton value="Return to Order" action="{!cancel}"/>
+
+</div>
+</apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

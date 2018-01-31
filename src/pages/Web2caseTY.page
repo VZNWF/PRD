@@ -1,0 +1,14 @@
+<apex:page sidebar="false" showHeader="false" >
+<script>
+    var headerText = parent.document.getElementsByClassName('iceOutTxt')[0];
+    headerText.innerHTML = "Thank You";
+</script>
+<head>
+<apex:stylesheet value="../media/css/nwfStyle.css" />
+</head>
+<apex:form styleClass="thankYou">
+    Thank you! A Customer Care Representative will be in touch with you shortly. We have emailed the case number to you.
+
+    <apex:commandButton styleClass="okBtn" value="Ok" onclick="parent.window.close();" />
+</apex:form>
+</apex:page>

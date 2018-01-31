@@ -1,0 +1,5 @@
+<apex:page standardController="Orders__c"  
+     extensions="OrderCloneWithItemsController"
+     action="{!cloneWithItems}">
+     <apex:pageMessages />
+</apex:page>

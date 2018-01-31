@@ -1,0 +1,523 @@
+<!-- 
+    Name: ManageDevices.vfp
+    Controller: ManageDevicesController
+    Description: The visualforce page for the 'Manage' button on the 'Case Devices' related list.  This page shall display the search form, along with the Available devices to the Account/Fleet Account
+    as well the selected devices which were attached to the case.
+    Jira: IT-1299
+ -->
+
+<apex:page standardController="Case" extensions="ManageDevicesController" sidebar="false" standardStyleSheets="true" title="{!Case.CaseNumber}">
+    <apex:includeScript value="{!URLFOR($Resource.DataTables, 'datatables.min.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.DataTables, 'datatables.min.css')}"/>
+    <style type="text/css">
+        .clearboth{
+            clear:both;
+        }
+        .floatright{
+            float:right;
+        }
+        .floatleft{
+            float:left;
+        }
+        .paddingtop{
+            padding-top:10px;
+        }
+        .paddingbottom{
+            padding-bottom: 10px;
+        }
+        .marginbottom{
+            margin-bottom: 10px;
+        }
+        tfoot {
+            display: table-header-group;
+        }
+        .searchStyle{
+            font-size:11px;
+        }
+        .highlightRow{
+            //background-color:#f9ebe5;
+            background-color:#f8f5df;   
+        }
+    </style>
+    <script>
+    var j$ = jQuery.noConflict();
+    j$(document).ready(function() {
+        // Setup - add a text input to each footer cell
+        j$('[id$=selDevices] tfoot th').each( function () {
+            var title = j$(this).text();
+            if(title != ''){
+                j$(this).html( '<input type="text" class="searchStyle" placeholder="Search '+title+'" />' );
+            }
+        } );
+
+        var table2 = j$('[id$=selDevices]').DataTable({
+            dom: '<"floatright"l><"clearboth paddingtop">t<"bottom"ipr>',
+            lengthMenu: [[1000], [1000]],
+            stateSave: false,
+            pageLength:1000,
+            processing: true,
+            orderClasses: false
+        });
+        
+        // Setup - add a text input to each footer cell
+        j$('[id$=allDevices] tfoot th').each( function () {
+            var title = j$(this).text();
+            if(title != ''){
+                j$(this).html( '<input type="text" class="searchStyle" placeholder="Search '+title+'" />' );
+            }
+        } );
+        var table = j$('[id$=allDevices]').DataTable( {
+            dom: 'B<"floatright"l><"clearboth paddingtop">t<"bottom"ipr>',
+            lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
+            stateSave: false,
+            pageLength: 15,
+            processing: true,
+            orderClasses: false,
+            buttons: {
+                buttons: [
+                            {
+                                text: 'Select All',
+                                action: function ( e, dt, node, config ) {
+                                    var cells = this.cells({page:'current'}).nodes();
+                                    j$( cells ).find(':checkbox').prop('checked', true);
+                                }
+                            },
+                            {
+                                text: 'Deselect All',
+                                action: function ( e, dt, node, config ) {
+                                    var cells = this.cells({page:'current'}).nodes();
+                                    j$( cells ).find(':checkbox').prop('checked', false);
+                                }
+                            }
+                ]
+            }
+        });
+        
+        // Apply the search for table1
+        table.columns().every( function () {
+            var that = this;
+     
+            j$( 'input', this.footer() ).on( 'keyup change', function () {
+                if ( that.search() !== this.value ) {
+                    that
+                        .search( this.value )
+                        .draw();
+                }
+            } );
+        } );
+        
+        // Apply the search for table2
+        table2.columns().every( function () {
+            var that = this;
+     
+            j$( 'input', this.footer() ).on( 'keyup change', function () {
+                if ( that.search() !== this.value ) {
+                    that
+                        .search( this.value )
+                        .draw();
+                }
+            } );
+        } );
+    });
+    
+    function resetBtn(){
+        j$('[id$=txtSrNo]').val('');
+        j$('[id$=txtVIN]').val('');
+        j$('[id$=chBoxIncUnRegDev]').prop('checked', false)
+        var source = j$('[id$=errorDiv]');
+        source.html('');
+        source.removeClass("message");
+        source.css("display", "none");
+        //resetFunc();
+    }
+    
+    function searchBtn(){
+        var source = j$('[id$=errorDiv]');
+        if(j$('[id$=txtSrNo]').val().trim() == '' && j$('[id$=txtVIN]').val().trim() == '' && (!j$('[id$=chBoxIncUnRegDev]').is(':checked'))){
+            source.html("<span style='color\:red;'><b>Error\:</b></span> <span style='color\:black'>Filter criteria cannot be blank\: Either enter or choose any of the filters to perform the search. </span>");
+            source.css("display", "block");
+            source.addClass("message");
+        }else{
+            j$('[id$=errorDiv]').html('');
+            source.removeClass("message");
+            source.css("display", "none");
+            searchFunc();
+        }
+        return false;
+    }
+    
+    </script>
+    
+    <apex:form >
+        <apex:pageBlock title="Manage Devices on the Case" mode="detail">
+            <apex:pageBlock id="pgBlock" mode="detail">
+                <apex:pageMessages id="msgs" escape="false" />
+                <apex:pageMessage id="pgBlockMsgs" rendered="{!isSearchFormError}" summary="Filter criteria cannot be blank" severity="Error" title="Error" strength="1"/>
+                <apex:pageBlockSection columns="2">
+                    <apex:pageblockSection columns="1" title="Case: {!Case.CaseNumber}" Collapsible="false">
+                        <apex:outputField label="Contact Name" value="{!Case.Contact.Name}"/>
+                        <apex:outputField label="Account" value="{!Case.Account.Name}"/>
+                        <apex:outputField label="Fleet Account" value="{!Case.Fleet_Account__r.Name}"/>
+                    </apex:pageblockSection>
+                
+                    <apex:pageblockSection columns="1" title="Additional Filter Criteria" Collapsible="false" showHeader="true">
+                        <apex:outputPanel >
+                            <apex:selectRadio required="true" value="{!searchFilter}">
+                                <apex:selectOptions value="{!filterOptions}"/>
+                            </apex:selectRadio>
+                            <apex:inputTextarea label="Search Criteria" value="{!searchTxtArea}" id="searchtxtArea" cols="60" rows="3"/>
+                        </apex:outputPanel>
+                        <apex:outputPanel >
+                            <apex:commandButton id="btnSearch" value="Search" action="{!fnSearch}" reRender="pgBlock,pgBlockAll" style="width:100px;" status="LoadingStatus"/>
+                            <apex:commandButton id="btnReset" value="Reset" action="{!fnReset}" rerender="pgBlock,pgBlockAll" style="width:100px;" status="LoadingStatus"/>
+                            <apex:commandButton id="btnCancel" value="Cancel" action="{!cancel}" style="width:100px;"/>
+                        </apex:outputPanel>
+                    </apex:pageblockSection>
+                </apex:pageBlockSection>
+            </apex:pageBlock>
+            
+            <apex:tabPanel switchType="client" selectedTab="newPanel" id="manageDevicesPanel">
+            
+            <apex:tab label="Service Console" name="newPanel">
+                <apex:pageBlock id="pgBlockAll" title="Available Devices (Max Results: 1000)">
+                    <apex:pageMessage id="pgBlockAllMsgs" rendered="{!isAvailDevListLarge}" summary="Maximum display limit reached." detail="If the Device(s) or Vehicle(s) are not listed below then use the search box above instead." severity="info" title="Attention!" strength="1"/>
+                    <script>
+                    // Setup - add a text input to each footer cell
+                    j$('[id$=allDevices] tfoot th').each( function () {
+                        var title = j$(this).text();
+                        if(title != ''){
+                            j$(this).html( '<input type="text" class="searchStyle" placeholder="Search '+title+'" />' );
+                        }
+                    } );
+                    var table = j$('[id$=allDevices]').DataTable( {
+                         dom: 'B<"floatright"l><"clearboth paddingtop">t<"bottom"ipr>',
+                        lengthMenu: [[15, 25, 50, 100], [15, 25, 50, 100]],
+                        stateSave: false,
+                        pageLength: 15,
+                        processing: true,
+                        buttons: {
+                            buttons: [
+                                        {
+                                            text: 'Select All',
+                                            action: function ( e, dt, node, config ) {
+                                                var cells = this.cells({page:'current'}).nodes();
+                                                j$( cells ).find(':checkbox').prop('checked', true);
+                                            }
+                                        },
+                                        {
+                                            text: 'Deselect All',
+                                            action: function ( e, dt, node, config ) {
+                                                var cells = this.cells({page:'current'}).nodes();
+                                                j$( cells ).find(':checkbox').prop('checked', false);
+                                            }
+                                        }
+                            ]
+                        }
+                    });
+                    
+                    // Apply the search
+                    table.columns().every( function () {
+                        var that = this;
+                 
+                        j$( 'input', this.footer() ).on( 'keyup change', function () {
+                            if ( that.search() !== this.value ) {
+                                that
+                                    .search( this.value )
+                                    .draw();
+                            }
+                        } );
+                    } );
+                    
+                   </script>
+                    <apex:pageBlockSection columns="1"  id="pbsAllDevices">
+                        <apex:actionStatus id="LoadingStatus">
+                            <apex:facet name="start">
+                                <span style="color:Red;">Loading </span> <img src="/img/loading.gif" />
+                            </apex:facet>
+                        </apex:actionStatus>
+                        <apex:pageBlockTable id="allDevices" value="{!availableDeviceList}" var="all">
+                            <apex:column width="20" headerValue="Select">
+                                <!-- <apex:facet name="header">
+                                    <apex:inputCheckBox id="selectAllCheckbox" onClick="selectAllcheckboxes(j$(this).is(':checked'))"/>
+                                </apex:facet>-->
+                                <apex:inputCheckbox value="{!all.isSelected}"/> 
+                            </apex:column>
+                            <apex:column value="{!all.strSrNo}" headerValue="Serial Number">
+                                <apex:facet name="footer">
+                                    <apex:outputText value="Serial Number"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column value="{!all.modelType}" headerValue="Model Type"/>
+                            <apex:column value="{!all.strActivationStatus}" headerValue="Activation Status"/>
+                            <apex:column value="{!all.strVehLabel}" headerValue="Vehicle Label">
+                                <apex:facet name="footer">
+                                    <apex:outputText value="Vehicle Label"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column value="{!all.unitUnderWrty}" headerValue="Unit Under Warranty"/> 
+                            <apex:column value="{!all.strVIN}" headerValue="VIN">
+                                <apex:facet name="footer">
+                                    <apex:outputText value="VIN"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="Fleet Account">
+                                <apex:outputLink target="_blank" value="/{!all.strFleetId}">{!all.strFleetName}</apex:outputLink>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockButtons location="top" style="margin:auto; width:50%;">
+                        <apex:commandButton id="btnAdd" value="Add to case" action="{!fnAdd}" status="status" reRender="pgBlockAll, pgBlockSel" style="width:100px;"/>
+                        <apex:actionStatus id="status">
+                            <apex:facet name="start">
+                                <span style="color:Red;">Processing..</span> <img src="/img/loading.gif" />
+                            </apex:facet>
+                        </apex:actionStatus>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+                <apex:pageBlock id="pgBlockSel" mode="detail" title="Selected Devices">
+                    <apex:pageMessage id="pgBlockSelMsgs" rendered="{!isSelDevListLarge}" summary="Maximum display limit reached." detail="If the device is not listed below then it can be found in the complete list of devices in the \'Device Informatin\' list on the Case page." severity="info" title="Attention!" strength="1"/>
+                    <script>
+                    // Setup - add a text input to each footer cell
+                    j$('[id$=selDevices] tfoot th').each( function () {
+                        var title = j$(this).text();
+                        if(title != ''){
+                            j$(this).html( '<input type="text" class="searchStyle" placeholder="Search '+title+'" />' );
+                        }
+                    } );
+                    var table1 = j$('[id$=selDevices]').DataTable({
+                        dom: '<"floatright"l><"clearboth paddingtop">t<"bottom"ipr>',
+                        lengthMenu: [[1000], [1000]],
+                        stateSave: false,
+                        pageLength: 1000,
+                        processing: true,
+                        orderClasses: false
+                    });
+                    
+                    // Apply the search
+                    table1.columns().every( function () {
+                        var that = this;
+                 
+                        j$( 'input', this.footer() ).on( 'keyup change', function () {
+                            if ( that.search() !== this.value ) {
+                                that
+                                    .search( this.value )
+                                    .draw();
+                            }
+                        } );
+                    } );
+                    </script>
+                    <apex:pageBlockSection columns="1"  id="pbsSelDevices">
+                        <apex:pageBlockTable id="selDevices" value="{!selectedDeviceList}" var="sel">
+                            <apex:column headerValue="Action" styleClass="{!IF(sel.isNew,'highlightRow','')}">
+                                <apex:commandLink action="{!fnDelete}" value="Delete" reRender="pgBlockAll,allDevices,pgBlockSel,selDevices" status="deleteStatus">
+                                    <apex:param assignTo="{!delDeviceId}" value="{!sel.DevId}" name="vehDeviceId"/>
+                                </apex:commandLink>
+                                <apex:actionStatus id="deleteStatus">
+                                    <apex:facet name="start">
+                                        <img src="/img/loading.gif" />
+                                    </apex:facet>
+                                </apex:actionStatus>
+                            </apex:column>
+                            <apex:column headerValue="Serial Number" value="{!sel.strSrNo}" styleClass="{!IF(sel.isNew,'highlightRow','')}">
+                                <apex:facet name="footer">
+                                    <apex:outputText value="Serial Number"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="Model Type" value="{!sel.modelType}" styleClass="{!IF(sel.isNew,'highlightRow','')}"/>
+                            <apex:column headerValue="Activation Status" value="{!sel.strActivationStatus}" styleClass="{!IF(sel.isNew,'highlightRow','')}"/>
+                            <apex:column headerValue="Unit Under Warranty" value="{!sel.unitUnderWrty}" styleClass="{!IF(sel.isNew,'highlightRow','')}"/>
+                            <apex:column headerValue="Vehicle Label" value="{!sel.strVehLabel}" styleClass="{!IF(sel.isNew,'highlightRow','')}">
+                                <apex:facet name="footer">
+                                    <apex:outputText value="Vehicle Label"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="Disposition Type" styleClass="{!IF(sel.isNew,'highlightRow','')}"> 
+                                <apex:facet name="footer">
+                                    <apex:commandButton value="Set Disposition" action="{!setDispositions}" rerender="pbsSelDevices"/>
+                                </apex:facet>
+                                <apex:selectList value="{!sel.dispositionType}" multiselect="false" size="1"> 
+                                <apex:selectOptions value="{!DispositionList}"/>
+                                </apex:selectList>
+                            </apex:column>
+                            <apex:column headerValue="VIN" value="{!sel.strVIN}" styleClass="{!IF(sel.isNew,'highlightRow','')}">
+                                <apex:facet name="footer">
+                                    <apex:outputText value="VIN"/>
+                                </apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="Fleet Account" styleClass="{!IF(sel.isNew,'highlightRow','')}">
+                                <apex:outputLink target="_blank" value="/{!sel.strFleetId}">{!sel.strFleetName}</apex:outputLink>
+                            </apex:column>
+                            <apex:column headerValue="Comments" styleClass="{!IF(sel.isNew,'highlightRow','')}">
+                                <apex:inputTextarea html-maxlength="2000" value="{!sel.strComments}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockButtons location="bottom" style="margin:auto; width:50%;">
+                        <apex:commandButton id="btnSubmit" value="Save & Submit" action="{!fnSubmit}" style="width:100px;"/>
+                        <apex:commandButton id="btnCreateRA" value="Create RA" action="{!CreateRA}" rendered="{!currcase.Reason == 'RA'}" style="width:100px;"/>
+                        <apex:commandButton id="btnCancel" value="Cancel" action="{!cancel}" style="width:100px;"/>
+                    </apex:pageBlockButtons>
+                </apex:pageBlock>
+            </apex:tab>
+            <apex:tab label="Old Legacy Interface" name="oldPanel">
+                <apex:pageblock >
+                    <apex:pageblockSection title="Vehicle #1 Information">
+                        <apex:inputField value="{!Case.MAN__c}"/>
+                        <apex:inputField value="{!Case.Color_1__c}"/>
+                        <apex:inputField value="{!Case.VIN_1__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_1__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_1__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_1__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_1__c}"/>
+                        <apex:inputField value="{!Case.Country_1__c}"/>
+                        <apex:inputField value="{!Case.Odometer_1__c}"/>
+                        <apex:inputField value="{!Case.License_State_1__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_1__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_1__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_1__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #2 Information">
+                        <apex:inputField value="{!Case.Networkcar_Serial_Number_2__c}"/>
+                        <apex:inputField value="{!Case.Color_2__c}"/>
+                        <apex:inputField value="{!Case.VIN_2__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_2__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_2__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_2__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_2__c}"/>
+                        <apex:inputField value="{!Case.Country_2__c}"/>
+                        <apex:inputField value="{!Case.Odometer_2__c}"/>
+                        <apex:inputField value="{!Case.License_State_2__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_2__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_2__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_2__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #3 Information">
+                        <apex:inputField value="{!Case.Networkcar_Serial_Number_3__c}"/>
+                        <apex:inputField value="{!Case.Color_3__c}"/>
+                        <apex:inputField value="{!Case.VIN_3__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_3__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_3__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_3__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_3__c}"/>
+                        <apex:inputField value="{!Case.Country_3__c}"/>
+                        <apex:inputField value="{!Case.Odometer_3__c}"/>
+                        <apex:inputField value="{!Case.License_State_3__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_3__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_3__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_3__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #4 Information">
+                        <apex:inputField value="{!Case.Networkcar_Serial_Number_4__c}"/>
+                        <apex:inputField value="{!Case.Color_4__c}"/>
+                        <apex:inputField value="{!Case.VIN_4__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_4__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_4__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_4__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_4__c}"/>
+                        <apex:inputField value="{!Case.Country_4__c}"/>
+                        <apex:inputField value="{!Case.Odometer_4__c}"/>
+                        <apex:inputField value="{!Case.License_State_4__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_4__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_4__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_4__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #5 Information">
+                        <apex:inputField value="{!Case.Networkcar_Serial_Number_5__c}"/>
+                        <apex:inputField value="{!Case.Color_5__c}"/>
+                        <apex:inputField value="{!Case.VIN_5__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_5__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_5__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_5__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_5__c}"/>
+                        <apex:inputField value="{!Case.Country_5__c}"/>
+                        <apex:inputField value="{!Case.Odometer_5__c}"/>
+                        <apex:inputField value="{!Case.License_State_5__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_5__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_5__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_5__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #6 Information">
+                        <apex:inputField value="{!Case.Serial_Number_6__c}"/>
+                        <apex:inputField value="{!Case.Color_6__c}"/>
+                        <apex:inputField value="{!Case.VIN_6__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_6__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_6__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_6__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_6__c}"/>
+                        <apex:inputField value="{!Case.Country_6__c}"/>
+                        <apex:inputField value="{!Case.Odometer_6__c}"/>
+                        <apex:inputField value="{!Case.License_State_6__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_6__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_6__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_6__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #7 Information">
+                        <apex:inputField value="{!Case.Serial_Number_7__c}"/>
+                        <apex:inputField value="{!Case.Color_7__c}"/>
+                        <apex:inputField value="{!Case.VIN_7__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_7__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_7__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_7__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_7__c}"/>
+                        <apex:inputField value="{!Case.Country_7__c}"/>
+                        <apex:inputField value="{!Case.Odometer_7__c}"/>
+                        <apex:inputField value="{!Case.License_State_7__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_7__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_7__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_7__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #8 Information">
+                        <apex:inputField value="{!Case.Serial_Number_8__c}"/>
+                        <apex:inputField value="{!Case.Color_8__c}"/>
+                        <apex:inputField value="{!Case.VIN_8__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_8__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_8__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_8__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_8__c}"/>
+                        <apex:inputField value="{!Case.Country_8__c}"/>
+                        <apex:inputField value="{!Case.Odometer_8__c}"/>
+                        <apex:inputField value="{!Case.License_State_8__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_8__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_8__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_8__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #9 Information">
+                        <apex:inputField value="{!Case.Serial_Number_9__c}"/>
+                        <apex:inputField value="{!Case.Color_9__c}"/>
+                        <apex:inputField value="{!Case.VIN_9__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_9__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_9__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_9__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_9__c}"/>
+                        <apex:inputField value="{!Case.Country_9__c}"/>
+                        <apex:inputField value="{!Case.Odometer_9__c}"/>
+                        <apex:inputField value="{!Case.License_State_9__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_9__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_9__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_9__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageblockSection title="Vehicle #10 Information">
+                        <apex:inputField value="{!Case.Serial_Number_10__c}"/>
+                        <apex:inputField value="{!Case.Color_10__c}"/>
+                        <apex:inputField value="{!Case.VIN_10__c}"/>
+                        <apex:inputField value="{!Case.Engine_Hours_10__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Y_M_M_10__c}"/>
+                        <apex:inputField value="{!Case.Driver_Name_10__c}"/>
+                        <apex:inputField value="{!Case.Harness_Type_10__c}"/>
+                        <apex:inputField value="{!Case.Country_10__c}"/>
+                        <apex:inputField value="{!Case.Odometer_10__c}"/>
+                        <apex:inputField value="{!Case.License_State_10__c}"/>
+                        <apex:inputField value="{!Case.Fuel_Type_10__c}"/>
+                        <apex:inputField value="{!Case.License_Plate_10__c}"/>
+                        <apex:inputField value="{!Case.Vehicle_Label_10__c}"/>
+                    </apex:pageblockSection>
+                    <apex:pageBlockButtons location="both" style="margin:auto; width:50%;">
+                        <apex:commandButton id="btnSubmit1" value="Save & Submit" action="{!fnSubmit}" style="width:100px;"/>
+                    </apex:pageBlockButtons>
+                </apex:pageblock>
+            </apex:tab>
+            </apex:tabPanel>
+        </apex:pageBlock>
+    </apex:form> 
+</apex:page>

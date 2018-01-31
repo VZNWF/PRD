@@ -1,0 +1,22 @@
+<apex:page standardController="Orders__c" extensions="OrderChildAccountInlineController" standardStylesheets="false">      
+    <apex:form >                                                                                               
+        <table width="100%" class="list" border="0" cellspacing="0" cellpadding="0" align="Center">                
+                 <tr>                                      
+                     <td width="50%" style="padding-left:27%">
+                        <b> <apex:outputLabel value="Seller Key"></apex:outputLabel> </b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                         <!--<apex:outputField value="{!ord.Seller_Key__c}" label="Seller key"/> -->
+                     </td>                                       
+                 </tr>                                              
+                 <apex:outputPanel rendered="{!showvalues}">
+                 <tr>                                                                                                                             
+                     <td  width="50%" style="padding-left: 24%">
+                         <apex:selectList value="{!accountId}" title="Account" size="1" id="account"  >                         
+                             <b> Child Accounts </b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   <apex:selectOptions value="{!childAccounts}"/>
+                         </apex:selectList> &nbsp;&nbsp;&nbsp;
+                         <apex:commandButton value="Update" action="{!UpdateChildaccount}"/>                        
+                     </td>                                                                                                                       
+                 </tr> 
+                 </apex:outputPanel>                                                                                                    
+             </table>                                                                                    
+    </apex:form>
+</apex:page>

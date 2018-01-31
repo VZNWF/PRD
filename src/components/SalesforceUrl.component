@@ -1,0 +1,1 @@
+<apex:component controller="SalesforceUrl" access="global">{!sfUrl}</apex:component>

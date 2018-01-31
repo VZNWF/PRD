@@ -1,0 +1,3 @@
+<apex:page standardController="CPQ_SOMAST__c" readOnly="true" tabstyle="CPQ__tab">
+<apex:iframe scrolling="true" height="1000px" width="100%" src="https://rs.webcomcpq.com/salesforce/SfLogin.aspx?sfauthUserID={!$User.Username}&apiPartnerURL={!$Api.Partner_Server_URL_290}&apiSessionID={!$Api.Session_ID}&domain_name=TELEMATICS&apiPass=Mk12312014&action=New&sfqpOpportunityID={!CPQ_SOMAST__c.Opportunity__c}" />                                                      
+</apex:page>

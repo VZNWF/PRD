@@ -1,0 +1,14 @@
+<apex:page >
+<script>
+var strWindowFeatures = "location=yes,height=570,width=520,scrollbars=yes,status=yes";
+
+//URL Goes Here
+//var URL = "http://gp3sql.corp.networkfleet.com/AssignDBNumToSalesMember/AssignDBNumToSalesMember.aspx?SFID={!$User.Id}";
+    var URL = "http://nfvsp:83/AssignDBNumToSalesMember.aspx?SFID={!$User.Id}";
+
+
+//Call Function
+var win = window.open(URL, "_parent", strWindowFeatures);
+
+</script>
+</apex:page>

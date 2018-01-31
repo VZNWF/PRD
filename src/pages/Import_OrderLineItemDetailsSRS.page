@@ -1,0 +1,188 @@
+<apex:page standardStylesheets="false" showHeader="false" cache="false" sidebar="false" showChat="false"  controller="ImportOLID_DataFromCSVControllerSRS">
+<apex:stylesheet value="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+<apex:includeScript value="//code.jquery.com/jquery-2.1.4.min.js"/>
+<apex:includeScript value="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"/>  
+<meta http-equiv="X-UA-Compatible" content="IE=10"/>
+<style>
+    #title1{
+          font-family: vgnVerizonApexBook,vgnVerizonApexBook_IE,vgnVerizonApexBook_WOFF,Arial,sans-serif !important;
+          font-size: 24px !important;
+          display: block;
+          color:Black;
+     }
+    .mybtn {
+      -webkit-border-radius: 0;
+      -moz-border-radius: 0;
+      border-radius: 4px;
+      -webkit-box-shadow: 0px 0px 0px #666666;
+      -moz-box-shadow: 0px 0px 0px #666666;
+      box-shadow: 0px 0px 0px #666666;
+      font-family: 'ArialMT', 'Arial';
+      color: #ffffff !important;
+      font-size: 16px;
+      background: #D52B1E;
+      padding: 5px 11px 5px 11px;
+      border: solid #8c1f31 0px;
+      text-decoration: none;
+    }   
+    .panel-primary {
+        border-color: #C0C0C0 !important;        
+    } 
+    .panel-primary>.panel-heading{
+        border-color: #F0F8F8 !important;
+        background-color: #747676 !important;
+    }
+    .errorPanel{
+        background-color: #f2dede;
+        border-color: #ebccd1;
+        color: #a94442;
+    }
+    
+    /* list */
+    .rounded-list ol 
+    {
+    counter-reset:li; /* Initiate a counter */
+    margin-left:0; /* Remove the default left margin */
+    padding-left:0; /* Remove the default left padding */
+    }
+    
+    /* item  */
+    .rounded-list ol > li
+    {
+    position:relative; /* Create a positioning context */
+    list-style:none; /* Disable the normal item numbering */
+    //background:#f6f6f6; /* Item background color */
+    margin:0; /* Give each list item a left margin to make room for the numbers */
+    padding-left: 15px; /* Add some spacing around the content */
+    padding-bottom:0px;
+    padding-top:0px;
+    line-height:13px;
+    }
+    
+    /* number  */
+    .rounded-list ol > li p:before
+    {
+    content: counter(li); 
+    counter-increment: li; 
+    position: absolute; 
+    left: -1.3em;
+    top: 50%;
+    
+    /* number background */
+    //background: #87ceeb;
+    background: #333333; 
+    height: 2em;
+    width: 2em;
+    margin-top: -1em;
+    line-height: 1.5em;
+    border: .3em solid #fff;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 2em;
+    color:#FFFFFF;
+    }
+
+    /* -------------------------------------- */ 
+</style>
+<script>
+    function enableButton(enabled){
+        var $buttons = jQuery('.btn');
+        if (enabled === false) {
+            $buttons.toggleClass('btnDisabled', true).attr('disabled', 'disabled');
+        } else {
+            $buttons.toggleClass('btnDisabled', false).attr('disabled', null);
+        } 
+    }
+    function fnImport(){        
+        enableButton(false);
+        return importCSV();
+    }
+</script>
+<c:importvisualstrap />
+<apex:form >
+<div class="container-fluid">
+<c:visualstrapblock >
+    <c:row >
+        <c:column type="col-md-9 col-sm-8">
+            <c:column type="col-md-4">
+                <!--  <apex:image url="{!URLFOR($Resource.IODS,'NetworkFleet-320dpi.png')}"/> -->  
+                <apex:image url="{!URLFOR($Resource.SRS,'SRS/Networkfleet-SRS-logo.png')}" height="70"/>
+            </c:column>
+            <c:column type="col-md-8">
+                <!--  <div>
+                    <span style="font-size:18.0pt;font-family:Calibri"><b>&nbsp;&nbsp;Service Request Site (SRS)</b></span>
+                </div> -->
+            </c:column>
+        </c:column>
+    </c:row>
+<hr/>    
+</c:visualstrapblock>
+<c:row >
+    <c:column type="col-md-12">
+        <apex:outputLabel value="Order:" for="GPOrderId"/>&nbsp;&nbsp;&nbsp;&nbsp;
+        <apex:outputText id="GPOrderId" value="{!GPOrderIdFromUrl}" />
+    </c:column>
+</c:row>
+<c:row >
+<!-- <c:column type="col-md-1">
+</c:column> -->
+<c:column type="col-md-12 col-lg-8">
+<apex:pageMessage id="userRedirectMessage" rendered="{!$CurrentPage.Parameters.userRedirect == 'true'}" severity="info" Title="Attention! Your previous service request is being processed." />
+<div class="errorPanel">
+<apex:pagemessages escape="false"/>
+</div><br/>
+<c:panel type="primary" title="Import Vehicle Information">
+          <apex:inputFile value="{!csvFileBody}" accept=".csv"  filename="{!csvAsString}"/><br/><br/>
+          <apex:commandButton styleClass="mybtn" id="btnImport" value="Upload" onclick="return fnImport();"/>&nbsp;&nbsp;&nbsp;
+          <!-- <apex:commandButton styleClass="mybtn" value="Continue" id="btnReturn" action="{!redirectToIODS}" rendered="{!IF(($CurrentPage.parameters.id != null && !isLargeDataUpload && !($CurrentPage.Parameters.userRedirect == 'true')),true,false)}"/>&nbsp;&nbsp;&nbsp;
+          <apex:commandButton styleClass="mybtn" value="Cancel" id="btnReturn1" action="{!redirectToIODS}" rendered="{!IF(($CurrentPage.parameters.id != null && !isLargeDataUpload && !($CurrentPage.Parameters.userRedirect == 'true')),true,false)}"/> -->
+          
+          <apex:commandButton styleClass="mybtn" value="Continue" id="btnReturn" action="{!redirectToIODS}" rendered="{!IF((Order_ID!= null && !isLargeDataUpload && !($CurrentPage.Parameters.userRedirect == 'true')),true,false)}"/>&nbsp;&nbsp;&nbsp;
+          <apex:commandButton styleClass="mybtn" value="Cancel" id="btnReturn1" action="{!redirectToIODSCancel}" rendered="{!IF((($CurrentPage.parameters.id != null || Order_ID != null) && !isLargeDataUpload && !($CurrentPage.Parameters.userRedirect == 'true')),true,false)}"/>
+          
+          
+          <br/>
+          <br/>
+          <br/>
+          <div style="padding-left:15px">
+            <c:row >
+                <c:column type="col-md-11">
+                    <apex:outputPanel id="instructions">
+                    <table border="0" class="rounded-list">
+                        <tr>
+                            <td>
+                                <ol>
+                                    <li><p>Click "Browse" to select your file.</p></li>
+                                    <li><p>Click 'Upload' to import Vehicle details.</p></li>
+                                    <li><p>Click "Continue" to return to the previous page to continue processing your request.</p></li>
+                                </ol>
+                                <div style="padding-bottom:5px;padding-top:10px">
+                                    <span style="color: #747676;"><b>NOTE:</b> From there you can make any necessary changes and submit your order for scheduling by clicking "Submit All Vehicles".</span> 
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    </apex:outputPanel>
+                </c:column>
+            </c:row>
+        </div>  
+</c:panel>
+</c:column>
+</c:row>
+
+</div>
+<apex:actionFunction name="importCSV" action="{!importCSVFile}"/>    
+</apex:form>
+
+<div style="padding-bottom:70px;">
+<!-- to fix the footer space issue -->
+</div>
+<div id="footer" class="container">
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="navbar-inner navbar-content-center">           
+           <apex:image url="{!URLFOR($Resource.TOaImages, 'TOaImages/logo.png')}" width="148" height="55"/>
+        </div>
+    </nav>
+</div>
+</apex:page>

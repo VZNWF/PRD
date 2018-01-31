@@ -1,0 +1,5 @@
+<apex:page controller="SaveFieldsController" action="{!Init}">
+
+	<apex:pageMessages />
+	
+</apex:page>

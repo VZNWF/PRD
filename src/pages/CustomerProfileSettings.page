@@ -1,0 +1,165 @@
+<!-- 
+    Name: CustomerProfileSettings.vfp
+    Controller: CustomerProfileSettingsController
+    Description: The admin configurable page to update the configuration for the Customer Profile Settings batch job.
+    Jira: IT-1924
+    Modification History:
+    Author    Jira              Date        Description
+ -->
+
+<apex:page StandardController="Customer_Profile_Settings__c" extensions="CustomerProfileSettingsController" sidebar="false">
+    <style type="text/css">
+        #mask{
+            display:none;
+            position:absolute;
+            margin:auto;
+            top:0;
+            left:0;
+            opacity:0.6;
+            filter:alpha(opacity=60);
+            background-color:#000000;
+            width:100%;
+            height:100%;
+            z-index:100;
+            float:left;
+            overflow:hidden;
+        }
+        .customPopup{
+            text-align:center;
+            background-color: #333333;
+            //border-style: solid;
+            //border-width: 2px;
+            left: 33%;
+            padding:2px;
+            position: fixed;
+            z-index: 9999;
+            //width: 700px;
+            margin: 0 auto;
+            color: #DDDDDD;
+        }
+    </style>
+    <div id="mask"></div>
+    <apex:form style="width:700px;">
+        <apex:outputPanel id="popup">
+            <script>
+             if(!{!displayPopUp}){
+                 document.getElementById("mask").style.display = 'none';
+             }
+            </script>
+            <apex:outputPanel styleClass="customPopup" layout="block" rendered="{!displayPopUp}">
+                <script>
+                    if({!displayPopUp}){
+                        document.getElementById("mask").style.display = 'block';
+                        
+                        if(window.innerHeight > document.getElementById("mask").clientHeight){
+                            document.getElementById("mask").style.height = window.innerHeight+'px';
+                        }
+                    }
+                    
+                    function confirmDelete1(tempReason){
+                        //var conf = confirm("Are you sure?");
+                        alert('hi');
+                        return conf;
+                    }
+                </script>
+                <apex:pageblock >
+                    <apex:pageMessages />
+                    <apex:pageMessage id="mapKeyExistsError" severity="error" strength="3" rendered="{!hasKeyFlag}" Title="{!errorTitle}" Summary="{!errorSummary}"/>
+                    <apex:pageblocksection columns="1">
+                        <apex:pageblocksectionitem >
+                            <apex:outputLabel value="Case Reason" for="caseReasonDropDown"/>
+                            <apex:selectList value="{!reason}" size="1" id="caseReasonDropDown">
+                                <apex:selectOptions value="{!caseReasonList}"/>   
+                                <apex:actionSupport event="onchange"  action="{!fetchSubReasons}" status="status" />         
+                            </apex:selectList>
+                        </apex:pageblocksectionitem>
+                        <apex:pageblocksectionitem >
+                            <apex:outputLabel value="Choose Sub-Reasons" for="subReason"/>
+                            <apex:outputPanel id="subReason">
+                                <c:MultiselectPicklist leftLabel="Available Sub Reasons"
+                                 leftOptions="{!availableSubReasonList}"
+                                 rightLabel="Selected Sub Reasons"
+                                 rightOptions="{!selectedSubReasonList}"
+                                 size="14"
+                                 width="150px"/>
+                                <apex:actionStatus id="status">
+                                    <apex:facet name="start">
+                                        <span style="color:Red;">Processing..</span> 
+                                    </apex:facet>
+                                </apex:actionStatus>
+                            </apex:outputPanel>
+                        </apex:pageblocksectionitem>
+                        <apex:pageblocksectionitem >
+                            <apex:outputLabel value="Time Frame" for="timeFrameInputText"/>
+                            <apex:selectList value="{!reasonWrapperObj.timeFrame}" size="1" id="timeFrameDropDown">
+                                <apex:selectOptions value="{!TimeFrameValues}"/>   
+                            </apex:selectList>
+                        </apex:pageblocksectionitem>
+                        <apex:pageblocksectionitem >
+                            <apex:outputLabel value="Category" for="bucketInputText"/>
+                            <apex:selectList value="{!reasonWrapperObj.categoryBucket}" size="1" id="bucketValueDropDown">
+                                <apex:selectOptions value="{!categoryValues}"/>   
+                            </apex:selectList>
+                        </apex:pageblocksectionitem>
+                    </apex:pageblocksection> 
+                    <apex:outputPanel style="margin:auto; width:50%;">
+                        <apex:commandButton value="Save" action="{!saveRow}" reRender="form, popup"/>
+                        <apex:commandButton value="Cancel" action="{!cancel}" reRender="popup"/>
+                    </apex:outputPanel>
+                    
+                 </apex:pageblock>
+             </apex:outputPanel>
+         </apex:outputPanel>
+                    
+    </apex:form>
+    <apex:form id="form">
+        <apex:pageMessages />
+        <apex:pageBlock id="x">
+            <apex:pageBlock mode="inlineEdit">
+                <apex:pageblocksection title="Customer Profile Settings">
+                    <apex:outputField value="{!custProfConfig.cPSettings.Name}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Is_Active__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Apex_Scheduler_Cron_Expression__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Contacts_Filter_Criteria__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Case_Filter_Criteria__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Case_Recordtype_Name__c}"/>
+                </apex:pageblocksection>
+                <apex:pageblocksection title="Scheduler Job Details">
+                    <apex:outputField value="{!custProfConfig.cPSettings.Email_receipients__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Last_Job_Run_Timestamp__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Notify_Job_Completion__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Next_Job_Schedule_Timestamp__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Settings_Last_Updated_By__c}"/>
+                    <apex:outputField value="{!custProfConfig.cPSettings.Settings_Last_Updated_Date__c}"/>
+                </apex:pageblocksection>
+                <apex:pageblocksection title="Case Reasons Criteria" columns="1">   
+                    <apex:commandLink value="New" action="{!newRow}">
+                    </apex:commandLink>
+                    <apex:pageBlockTable value="{!custProfConfig.rWCList}" var="h">
+                        <apex:column headerValue="Case Reason" value="{!h.caseReason}"/>
+                        <apex:column headerValue="Case Sub-Reason" >
+                            <apex:repeat value="{!h.selectedSubReasonSet}" var="subReason">
+                                <apex:outputText value="{!subReason}"/> <br/>
+                            </apex:repeat>
+                        </apex:column>
+                        <apex:column headerValue="TimeFrame" value="{!h.timeframe}"/>
+                        <apex:column headerValue="Category" value="{!h.categoryBucket}"/>
+                        <apex:column style="width:100px;">
+                            <apex:commandLink value="Edit" action="{!editRow}">
+                                <apex:param name="editParam1" value="{!h.caseReason}_{!h.timeframe}_{!h.categoryBucket}" assignTo="{!editMapKey}"/>
+                            </apex:commandLink>
+                            &nbsp;&nbsp;|&nbsp;&nbsp;
+                            <apex:commandLink value="Remove" action="{!deleteRow}" rerender="form">
+                                <apex:param name="editParam" value="{!h.caseReason}_{!h.timeframe}_{!h.categoryBucket}" assignTo="{!editMapKey}"/>
+                            </apex:commandLink>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                </apex:pageblocksection>
+                <apex:pageBlockButtons >
+                    <apex:commandButton value="Update Configuration" action="{!updateConfig}"/>
+                    <apex:commandButton value="Cancel" action="{!cancel}"/>
+                </apex:pageBlockButtons>
+            </apex:pageBlock>
+        </apex:pageBlock>
+    </apex:form>
+ </apex:page>

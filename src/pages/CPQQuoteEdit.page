@@ -1,0 +1,3 @@
+<apex:page standardController="CPQ_SOMAST__c" readOnly="true" tabstyle="CPQ__tab" >
+<apex:iframe scrolling="true" height="1000" src="https://rs.webcomcpq.com/salesforce/SfLogin.aspx?sfauthUserID={!$User.Username}&apiPartnerURL={!$Api.Partner_Server_URL_290}&apiSessionID={!$Api.Session_ID}&domain_name=TELEMATICS&apiPass=Mk12312014&action=Edit&sfqpOpportunityID={!CPQ_SOMAST__c.Opportunity__c}&OwnerId={!CEILING(CPQ_SOMAST__c.Owner_ID__c)}&QuoteId={!CEILING(CPQ_SOMAST__c.Quote_ID__c)}" />
+</apex:page>

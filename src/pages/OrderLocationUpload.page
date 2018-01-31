@@ -1,0 +1,77 @@
+<apex:page controller="ImportOrderActivityDetailsController" tabStyle="OrderLocation__c">
+     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"> </script>
+   
+    <script>
+    function enableButton(enabled)
+    {
+        var $buttons = jQuery('.btn');
+        if (enabled === false) {
+            $buttons.toggleClass('btnDisabled', true).attr('disabled', 'disabled');
+        } else {
+            $buttons.toggleClass('btnDisabled', false).attr('disabled', null);
+        } 
+    }
+
+    function fnImport(){
+        
+        enableButton(false);
+        return importCSV();
+    }
+    </script>
+    <apex:form >
+        <!---<apex:pagemessages />
+        <apex:actionFunction name="importCSV" action="{!importCSVFile}"/>
+        <apex:pageBlock title="Import Vehicle Information (Order Line Item Details)" >
+            <apex:pageBlockSection columns="2"> 
+                 <apex:outputLabel value="Select File" />
+                  <apex:inputFile value="{!csvFileBody}" accept=".csv"  filename="{!csvAsString}"/>
+
+                   <apex:outputLabel value="Overwrite Existing Order Activity Details?" for="theCheckbox"/>
+                    <apex:inputCheckbox value="{!isOverride}" selected="{!isSelected}" immediate="true"  id="theCheckbox"/>
+
+                  <apex:commandButton id="btnImport" value="Import OrderActivity Data" onclick="return fnImport();"/>
+                  
+            </apex:pageBlockSection>
+        </apex:pageBlock> --->
+        <apex:pagemessages />
+        <apex:actionFunction name="importCSV" action="{!importfile}" />
+        <apex:pageBlock >
+            <apex:pageBlockSection title="Import Order Information ">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Select file">
+                    </apex:outputLabel>
+                </apex:pageBlockSectionItem> 
+                <apex:pageBlockSectionItem >
+                    <apex:inputFile fileName="csvFile" accept=".csv" value="{!csvFileBody}"> </apex:inputFile>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:commandButton id="btnImport" value="Upload" onclick="return fnImport();" > </apex:commandButton>              
+                    <apex:commandButton id="btnBack" value="Refresh" action="{!dosubmit}" > </apex:commandButton>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <apex:pageBlock id="pbResult" rendered="{!blnDisplayOrder}">
+            <apex:pageBlockTable columns="20" value="{!listLocationOrder}" var="objOrder">
+                <!--<apex:column value="{!objOrder.Id}"></apex:column>--->
+                <apex:column value="{!objOrder.Name}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Name}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Alternate_Email__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Alternate_Name__c}"></apex:column>             
+                <apex:column value="{!objOrder.Location__r.Alternate_Phone__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Garage_Address1__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Garage_Address2__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Garage_City__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Garage_State__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Garage_Country__c}"></apex:column>                
+                <apex:column value="{!objOrder.Location__r.Garage_Zip__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Phone__c}"></apex:column> 
+                <apex:column value="{!objOrder.Location__r.ContactName__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Email__c}"></apex:column>
+                <apex:column value="{!objOrder.Location__r.Ship_Company__c }"></apex:column>
+                <apex:column value="{!objOrder.PO_Number__c }"></apex:column>
+            </apex:pageBlockTable>        
+        </apex:pageBlock> 
+     
+     
+   </apex:form>
+</apex:page>

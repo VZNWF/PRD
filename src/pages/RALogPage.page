@@ -1,0 +1,225 @@
+<apex:page standardController="Case" extensions="ManageDevicesController" sidebar="false" standardStyleSheets="true" >
+<apex:form id="myForm">
+ 
+ <script type="text/javascript"> 
+  
+  function openLookup(baseURL, width, modified, searchParam){
+    var originalbaseURL = baseURL;
+    var originalwidth = width;
+    var originalmodified = modified;
+    var originalsearchParam = searchParam;
+    
+    var lookupType = baseURL.substr(baseURL.length-3, 3);
+    if (modified == '1') baseURL = baseURL + searchParam;
+    
+    var isCustomLookup = false;
+    
+    // Following "001" is the lookup type for Account object so change this as per your standard or custom object
+    if(lookupType == "a1Z"){
+  
+      var urlArr = baseURL.split("&");
+      var txtId = '';
+      if(urlArr.length > 2) {
+        urlArr = urlArr[1].split('=');
+        txtId = urlArr[1];
+      }
+      
+      // Following is the url of Custom Lookup page. You need to change that accordingly
+      baseURL = "/apex/RALocationLookup?raId={!objRAlog.Id}&txt=" + txtId;
+      
+      // Following is the id of apex:form control "myForm". You need to change that accordingly
+      baseURL = baseURL + "&frm=" + escapeUTF("{!$Component.myForm}");
+      if (modified == '1') {
+        baseURL = baseURL + "&lksearch=" + searchParam;
+      }
+      
+      // Following is the ID of inputField that is the lookup to be customized as custom lookup
+      if(txtId.indexOf('ralocId') > -1 ){
+        isCustomLookup = true;
+      }
+    }
+    
+    
+    if(isCustomLookup == true){
+      openPopup(baseURL, "lookup", 350, 480, "width="+width+",height=480,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no", true);
+    }
+    else {
+      if (modified == '1') originalbaseURL = originalbaseURL + originalsearchParam;
+      openPopup(originalbaseURL, "lookup", 350, 480, "width="+originalwidth+",height=480,toolbar=no,status=no,directories=no,menubar=no,resizable=yes,scrollable=no", true);
+    } 
+  }
+  
+  
+</script>
+ 
+     <apex:pagemessages id="pgMsg"/>
+         <apex:outputPanel id="mainPanel">  
+          <apex:pageBlock id="pb1">
+                <apex:pageBlockSection title="CASE INFORMATION " columns="2" id="Casedetail">  
+                    <apex:outputfield label="Case Number" value="{!objRAlog.Case__c}" ></apex:outputfield>                    
+                    <apex:outputfield label="RA Log Id" value="{!objRAlog.Name}" ></apex:outputfield>
+                    <apex:outputField label="Fleet Account" value="{!currCase.Fleet_Account__r.Name}"/>
+                    <apex:outputField label="RA Status" value="{!objRAlog.RA_Status__c}"/> 
+                    <apex:outputField label="Customer Number" value="{!currCase.Fleet_Account__r.AccountNumber}"/>                                                                                                                      
+                    <apex:outputField label="RA Type" value="{!objRAlog.RA_Type__c}"/>                    
+                    <apex:outputField label="Case Sub Reason" value="{!objRAlog.Case_Sub_Reason__c}"/> 
+                    <apex:outputfield label="Total Units in RA" value="{!objRAlog.Units_in_RA__c}"></apex:outputfield>
+                    <!--<apex:inputField label="RA Serial# Cust ID Verified" value="{!objRAlog.RA_Serial_Cust_ID_Verified__c}"/> -->                                                                         
+                     <apex:outputfield label="Order" value="{!objRAlog.Order__c}"></apex:outputfield>    
+                    <apex:outputfield label="Units in RA(Serialized Devices)" value="{!objRAlog.Units_in_RA_Serialized__c}"></apex:outputfield>
+                    <apex:inputField label="Comments" value="{!objRAlog.Comments__c}"/>                                                                                   
+                    <apex:outputfield label="Units in RA(Non-Serialized Devices)" value="{!objRAlog.Units_in_RA_Non_Serialized__c}"></apex:outputfield>                                                                                                     
+                 </apex:pageBlockSection>   
+              </apex:pageBlock>            
+            
+              <apex:pageBlock title="RA Details (Serialized)"  id="RASerial">
+                <apex:pageblockTable id="CaseDevice" value="{!lstCaseDevice}" var="RA" columns="12">  
+                        <apex:column headerValue="Action">
+                            <apex:facet name="header">
+                                <apex:outputLabel value="Action"></apex:outputLabel>
+                            </apex:facet>
+                          
+                            <apex:commandLink value="Delete" style="color:Black" action="{!deleteSrialized}"  reRender="RASerial"> 
+                            <apex:param name="leadToDelete" value="{!RA.Id}" assignTo="{!delDeviceId}"/>        
+                            </apex:commandLink>    
+                        </apex:column>                       
+                        <apex:column headervalue="RA DetailLog Id">
+                               <apex:outputLink value="/{!RA.Id}" target="top">{!RA.Name} </apex:outputLink> 
+                        </apex:column> 
+                        <apex:column headervalue="Serial Number">
+                                <apex:outputText value="{!RA.Serial_Number__c}" />
+                        </apex:column>
+                        <apex:column headervalue="Model Type">
+                                <apex:outputText value="{!RA.Model_Type__c}"/>
+                        </apex:column>
+                        <apex:column headervalue="Unit Under Warranty">
+                                <apex:outputText value="{!RA.Unit_under_warranty__c}"/>
+                        </apex:column>
+                        <!--<apex:column headervalue="RA Type">
+                                <apex:inputfield value="{!RA.RA_Type__c}"/>
+                                <apex:actionSupport event="onchange" rerender="Casedetail" />
+                        </apex:column> -->
+                        <apex:column headerValue="RA Type" > 
+                           <apex:selectList value="{!RA.RA_Type__c}" multiselect="false" size="1"> 
+                            <apex:selectOptions value="{!RAList}"/>
+                           </apex:selectList>
+                        </apex:column>
+                        <apex:column headervalue="Unit Type Needed (Serialized)">
+                              <apex:inputfield id="UnitTypeS" value="{!RA.Unit_Type_Needed_Serialised__c}" >
+                               <apex:actionSupport action="{!checkType}" event="onchange" reRender="mainPanel"/>                              
+                              </apex:inputfield>
+                        </apex:column>                                
+                        <apex:column >            
+                               
+                             <apex:facet name="header"> 
+                                 <apex:outputPanel >              
+                                    RA Location <apex:commandButton value="Set Location" action="{!setLocationsSerialized}" rerender="RASerial" />                                    
+                                
+                               </apex:outputPanel>
+                               </apex:facet>
+                              <apex:inputfield value="{!RA.RA_Location__c}" id="ralocId"/>             
+                        </apex:column>
+                        <apex:column headervalue="Reason Returned">
+                              <apex:inputfield value="{!RA.Reason_Returned__c}" style="width:300px"/>
+                        </apex:column>                                                    
+                      <!-- <apex:column headervalue="Flag for Engineering Dept">
+                                <apex:inputfield value="{!RA.Flag_for_Engineering_Dept__c}"/>
+                        </apex:column>-->
+                </apex:pageblockTable>             
+            </apex:pageBlock>
+             
+            <apex:pageBlock title="RA Details (Non Serialized)" id="RAlog1" >
+                <apex:pageblockTable id="nonRALogDetails" value="{!lstNonRALogDetails}" var="RA" columns="15">                  
+                        
+                        <apex:column headerValue="Action">
+                        <apex:facet name="header"></apex:facet>
+                        <apex:commandLink value="Delete" style="color:Black" action="{!deleteNonserialized}" rendered="{!(RA.Id != NULL)}"  reRender="RAlog1"> 
+                        <apex:param name="rowid" value="{!RA.Id}" assignTo="{!delDeviceId}"/>        
+                        </apex:commandLink>    
+                        </apex:column>                       
+                        <apex:column headervalue="RA DetailLog Id">
+                          <apex:outputLink value="/{!RA.Id}" target="top">{!RA.Name} </apex:outputLink> 
+                        </apex:column>
+                        <apex:column headervalue="Non-Serialized devices">
+                           <apex:inputfield value="{!RA.Non_Serialized_devices__c}" style="width:100px">
+                               <apex:param name="recordId" value="{!RA.Id}" assignTo="{!nonSerdevices}"/>
+                               <apex:actionSupport event="onchange" action="{!assignUnitType}" reRender="mainPanel"/>
+                               <apex:actionSupport event="onchange" action="{!NSUnitTypeNeeded}" rendered="{!(objRAlog.Case_Sub_Reason__c != 'Extra Part(s) Ordered' && objRAlog.Case_Sub_Reason__c != 'Pilot Return' && objRAlog.RA_Status__c == 'Open' && objRAlog.Emailsent__c == false)}" reRender="mainPanel"/>
+                           </apex:inputfield>
+                        </apex:column>
+                        <apex:column headerValue="RA Type" > 
+                           <apex:selectList value="{!RA.RA_Type__c}" multiselect="false" size="1"> 
+                            <apex:selectOptions value="{!RAList}"/>
+                           </apex:selectList>
+                        </apex:column>
+                        <!--<apex:column headervalue="RA Type" >
+                          <apex:inputfield value="{!RA.RA_Type__c}"/>
+                        </apex:column>-->
+                        <apex:column headervalue="Quantity">
+                          <apex:inputfield value="{!RA.Quantity__c}" style="width:40px"/>
+                        </apex:column>
+                        <apex:column headervalue="Unit Type Needed (Non-Serialized)">
+                              <apex:inputfield id="UnitTypeNS" value="{!RA.Unit_Type_Needed_Non_Serialised__c}" style="width:185px"/>
+                        </apex:column>       
+                        <apex:column >            
+                               
+                             <apex:facet name="header"> 
+                                 <apex:outputPanel >              
+                                    RA Location <apex:commandButton value="Set Location" action="{!setLocationsNonSerialized}" rerender="RAlog1" />                                    
+                                
+                               </apex:outputPanel>
+                               </apex:facet>
+                              <apex:inputfield value="{!RA.RA_Location__c}" id="ralocId"/>             
+                        </apex:column>
+                        <apex:column headervalue="Reason Returned">
+                              <apex:inputfield value="{!RA.Reason_Returned__c}" style="width:300px" />
+                        </apex:column>
+                        <apex:column headervalue="Unit Under warranty">
+                                <apex:inputfield value="{!RA.Unit_under_warranty__c }" required="true"/>
+                        </apex:column>                        
+                      <!-- <apex:column headervalue="Flag for Engineering Dept">
+                                <apex:inputfield value="{!RA.Flag_for_Engineering_Dept__c}"/>
+                        </apex:column>-->
+                        <apex:column headervalue="Tracking Number">
+                                <apex:inputfield value="{!RA.Tracking_Number__c }"/>
+                        </apex:column>                       
+                </apex:pageblockTable>
+            
+   
+           <apex:commandButton value="Add Row" action="{!fnAddRow}" reRender="RAlog1">  </apex:commandButton>            
+           <!-- <apex:commandButton value="Save" action="{!fnSaveNonSerialzed}" reRender="RAlog1">  </apex:commandButton> -->
+             <apex:pageBlockButtons location="bottom" style="margin:left; width:50%;"> 
+              <apex:commandButton id="btnCancel" value="Cancel RA" action="{!CancelRA}" onclick="return confirm('Are you sure you want to Cancel?');" style="width:100px;" rendered="{!objRAlog.RA_Status__c == 'Open' &&  objRAlog.Emailsent__c == false}"/>              
+              <apex:commandButton id="btnUpdate" value="Update RA" action="{!UpdateRA}" rendered="{!(objRAlog.RA_Status__c == 'Open' && objRAlog.Emailsent__c == false)}" style="width:100px;"/>
+              <apex:commandButton id="btnSearch" value="Create Order" action="{!createOrder}"  rendered="{!(objRAlog.Case_Sub_Reason__c != 'Extra Part(s) Ordered' && objRAlog.Case_Sub_Reason__c != 'Pilot Return' && objRAlog.RA_Status__c == 'Open' && objRAlog.Emailsent__c == false)}" style="width:100px;" onclick="disableOnSubmit(this);"/>
+              <apex:commandButton id="btnSendEmail" value="Send Email" action="{!SendEmail}" rendered="{!(objRAlog.Case_Sub_Reason__c == 'Incorrect Part Ordered' && objRAlog.RA_Status__c != 'Cancelled')}" style="width:100px;"/>         
+            </apex:pageBlockButtons>       
+            </apex:pageBlock> 
+     
+      <script>
+        function disableOnSubmit(input) {
+            var unitType = '{!extendedType}';
+            if( unitType == "true"){
+            alert('Please Note that shipment will be delayed 4-5 days due to selection of Extended Coverage item');
+            }
+            var btn = input;
+            setTimeout(function(){ 
+                btn.disabled = 'disabled';
+                // Use the Salesforce CSS style to make the button appear disabled
+                btn.className = 'btnDisabled';
+                btn.value = "Saving..."; 
+            }, 50);
+        }
+        
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+        }
+     </script> 
+    </apex:outputPanel>  
+    </apex:form>
+</apex:page>
